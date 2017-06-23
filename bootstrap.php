@@ -1,9 +1,15 @@
 <?php
+
 namespace rest;
 
 use wula\cms\CmfModule;
 use wulaphp\app\App;
 
+/**
+ * Class RestModule
+ * @package rest
+ * @group   core
+ */
 class RestModule extends CmfModule {
 	public function getName() {
 		return 'RESTFul';
@@ -17,10 +23,11 @@ class RestModule extends CmfModule {
 		return 'https://www.wulacms.com/modules/core';
 	}
 
-	protected function getVersionList() {
+	public function getVersionList() {
 		$v['1.0.0'] = '';
 
 		return $v;
 	}
 }
+
 App::register(new RestModule());
