@@ -20,7 +20,7 @@ class RestModule extends CmfModule {
 	}
 
 	public function getHomePageURL() {
-		return 'https://www.wulacms.com/modules/core';
+		return 'https://www.wulacms.com/modules/rest';
 	}
 
 	public function getVersionList() {
