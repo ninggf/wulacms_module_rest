@@ -276,18 +276,19 @@ class RestFulClient {
 	 * @param string $api
 	 */
 	private function prepare(&$params, $api) {
-		$this->close();
 		$params ['api']    = $api;
 		$params ['appkey'] = $this->appKey;
 		$params ['ver']    = $this->ver;
 		$params ['crc']    = self::chucksum($params, $this->appSecret);
-		$this->curl        = curl_init();
+		if (!$this->curl) {
+			$this->curl = curl_init();
+		}
 		curl_setopt($this->curl, CURLOPT_AUTOREFERER, 1);
 		curl_setopt($this->curl, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($this->curl, CURLOPT_SSL_VERIFYHOST, false);
 		curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($this->curl, CURLOPT_TIMEOUT, $this->timeout);
-		curl_setopt($this->curl, CURLOPT_POSTFIELDS, array());
+		curl_setopt($this->curl, CURLOPT_POSTFIELDS, []);
 	}
 
 	/**
