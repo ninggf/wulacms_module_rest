@@ -144,7 +144,7 @@ class RestFulClient {
 		if ($rst === null) {
 			$rst = curl_exec($this->curl);
 			if ($rst === false) {
-				log_error(curl_error($this->curl), 'rest.err');
+				log_warn(curl_error($this->curl), 'rest.err');
 			}
 			curl_close($this->curl);
 			$this->curl = null;
@@ -193,7 +193,7 @@ class RestFulClient {
 				$sign [] = $key . "=";
 			}
 		}
-		$str = implode('&', $sign) . $appSecret;
+		$str = str_replace(["\n", "\r"], '', implode('&', $sign) . $appSecret);
 		if ($type == 'sha1') {
 			return sha1($str);
 		} else {
