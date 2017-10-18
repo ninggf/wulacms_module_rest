@@ -8,7 +8,9 @@ class RestFulClient {
 	private $appSecret;
 	private $appKey;
 	private $curl;
-	private $timeout = 30;
+	private $timeout = 15;
+	private $cookies = [];
+	private $headers = [];
 
 	/**
 	 * 构建一个RESTful Client 实例.
@@ -24,12 +26,39 @@ class RestFulClient {
 	 * @param int    $timeout
 	 *            timeout.
 	 */
-	public function __construct($url, $appKey, $appSecret, $ver = '1', $timeout = 30) {
+	public function __construct($url, $appKey, $appSecret, $ver = '1', $timeout = 15) {
 		$this->url       = $url;
 		$this->appKey    = $appKey;
 		$this->appSecret = $appSecret;
-		$this->ver       = intval($ver) . '.0';
+		$this->ver       = $ver;
 		$this->timeout   = intval($timeout);
+	}
+
+	/**
+	 * 设置cookie。
+	 *
+	 * @param string $cookie k=v
+	 *
+	 * @return $this
+	 */
+	public function cookie($cookie) {
+		$this->cookies[] = $cookie;
+
+		return $this;
+	}
+
+	/**
+	 * 设置请求头.
+	 *
+	 * @param string $header
+	 * @param string $value
+	 *
+	 * @return $this
+	 */
+	public function header($header, $value) {
+		$this->headers[ $header ] = $value;
+
+		return $this;
 	}
 
 	/**
@@ -53,7 +82,8 @@ class RestFulClient {
 	 */
 	public function get($api, $params = [], $timeout = null) {
 		$this->prepare($params, $api);
-		curl_setopt($this->curl, CURLOPT_URL, $this->url . '?' . http_build_query($params));
+		$url = $this->url . '?' . http_build_query($params);
+		curl_setopt($this->curl, CURLOPT_URL, $url);
 		curl_setopt($this->curl, CURLOPT_HTTPGET, 1);
 		curl_setopt($this->curl, CURLOPT_UPLOAD, false);
 		if (is_numeric($timeout)) {
@@ -150,13 +180,19 @@ class RestFulClient {
 			$this->curl = null;
 		}
 		if (empty ($rst)) {
-			return ['error' => 106, 'message' => __('Internal error.')];
+			return ['error' => ['code' => 106, 'msg' => __('Internal error.')]];
 		} else {
 			$json = @json_decode($rst, true);
 			if ($json) {
 				return $json;
 			} else {
-				return ['error' => 107, 'message' => __('Not supported response format.'), 'data' => $rst];
+				return [
+					'error' => [
+						'code'         => 107,
+						'msg'          => __('Not supported response format.'),
+						'responseText' => $rst
+					]
+				];
 			}
 		}
 	}
@@ -174,30 +210,37 @@ class RestFulClient {
 	 */
 	public static function chucksum(array $args, $appSecret, $type = 'sha1') {
 		$args = self::checkArgs($args);
+		if (isset($args['sign_method'])) {
+			$type = $args['sign_method'];
+		}
 		self::sortArgs($args);
 		$sign = [];
 		foreach ($args as $key => $v) {
 			if (is_array($v)) {
 				foreach ($v as $k => $v1) {
 					if ($v1{0} == '@') {
-						$sign [] = $key . "[{$k}]=" . self::getfileSha1($v1);
+						$sign [] = $key . "[{$k}]" . self::getfileSha1($v1);
+					} else if ($v1 || is_numeric($v1)) {
+						$sign [] = $key . "[{$k}]" . $v1;
 					} else {
-						$sign [] = $key . "[{$k}]=" . $v1;
+						$sign [] = $key . "[{$k}]";
 					}
 				}
 			} else if ($v{0} == '@') {
-				$sign [] = $key . "=" . self::getfileSha1($v);
+				$sign [] = $key . self::getfileSha1($v);
 			} else if ($v || is_numeric($v)) {
-				$sign [] = $key . "=" . $v;
+				$sign [] = $key . $v;
 			} else {
-				$sign [] = $key . "=";
+				$sign [] = $key;
 			}
 		}
-		$str = str_replace(["\n", "\r"], '', implode('&', $sign) . $appSecret);
+		$str = implode('', $sign);
 		if ($type == 'sha1') {
-			return sha1($str);
+			return sha1($str . $appSecret);
+		} else if ($type == 'hmac') {
+			return hash_hmac('sha256', $str, $appSecret);
 		} else {
-			return md5($str);
+			return md5($str . $appSecret);
 		}
 	}
 
@@ -261,7 +304,7 @@ class RestFulClient {
 	 */
 	private function preparePostData(array &$data) {
 		foreach ($data as $key => &$val) {
-			if (is_string($val) && $val{0} == '@' && file_exists(trim(substr($val, 1), '"'))) {
+			if (is_string($val) && $val{0} == '@' && is_file(trim(substr($val, 1), '"'))) {
 				$data [ $key ] = new \CURLFile(realpath(trim(substr($val, 1), '"')));
 			} else if (is_array($val)) {
 				$this->preparePostData($val);
@@ -276,10 +319,12 @@ class RestFulClient {
 	 * @param string $api
 	 */
 	private function prepare(&$params, $api) {
-		$params ['api']    = $api;
-		$params ['appkey'] = $this->appKey;
-		$params ['ver']    = $this->ver;
-		$params ['crc']    = self::chucksum($params, $this->appSecret);
+		$params ['api']     = $api;
+		$params ['app_key'] = $this->appKey;
+		if (!isset($params['v'])) {
+			$params ['v'] = $this->ver;
+		}
+		$params ['sign'] = self::chucksum($params, $this->appSecret);
 		if (!$this->curl) {
 			$this->curl = curl_init();
 		}
@@ -289,6 +334,12 @@ class RestFulClient {
 		curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($this->curl, CURLOPT_TIMEOUT, $this->timeout);
 		curl_setopt($this->curl, CURLOPT_POSTFIELDS, []);
+		if ($this->cookies) {
+			curl_setopt($this->curl, CURLOPT_COOKIE, $this->cookies);
+		}
+		if ($this->headers) {
+			curl_setopt($this->curl, CURLOPT_HEADER, $this->headers);
+		}
 	}
 
 	/**
@@ -298,7 +349,7 @@ class RestFulClient {
 	 *
 	 * @return array results for each request.
 	 */
-	private function execute(array $clients) {
+	public function execute(array $clients) {
 		if ($clients) {
 			$mh      = curl_multi_init();
 			$handles = [];
