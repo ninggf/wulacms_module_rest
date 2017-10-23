@@ -184,11 +184,11 @@ class IndexController extends Controller {
 		if ($trigger) {
 			if (isset($data['error'])) {
 				if ($this->api) {
-					fire('rest\errApi', $this->api);
+					fire('rest\errApi', $this->api, $etime, $data);
 				}
-				fire('rest\callError', $etime);
+				fire('rest\callError', $etime, $data);
 			}
-			fire('rest\endCall', $etime);
+			fire('rest\endCall', $etime, $data);
 		}
 		if ($format == 'json') {
 			return isset($data['error']) ? $data : ['response' => $data];

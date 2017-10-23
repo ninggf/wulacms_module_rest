@@ -27,7 +27,7 @@
                     {$form|render}
                     <div class="line line-dashed line-lg pull-in"></div>
                     <div class="form-group">
-                        <div class="col-md-offset-3 col-md-9 col-xs-12">
+                        <div class="col-md-offset-2 col-md-10 col-xs-12">
                             <button type="submit" class="btn btn-primary">提交测试</button>
                             <button type="reset" class="btn btn-default">重置</button>
                         </div>

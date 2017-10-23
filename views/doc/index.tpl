@@ -13,9 +13,13 @@
             </section>
         </div>
     </aside>
-    <section class="bg-white-only" id="rest-app-doc" data-load data-lazy>
-        <div class="wrapper-lg">
-            <div class="text-muted h4"><i class="fa fa-hand-o-left"></i> 请从左侧选择你要阅读的文档.</div>
+    <section class="bg-white-only">
+        <div class="vbox">
+            <section class="scrollable" id="rest-app-doc" data-load data-lazy>
+                <div class="wrapper-lg">
+                    <div class="text-muted h4"><i class="fa fa-hand-o-left"></i> 请从左侧选择你要阅读的文档.</div>
+                </div>
+            </section>
         </div>
     </section>
     <script type="text/javascript">
