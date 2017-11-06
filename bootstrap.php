@@ -49,7 +49,7 @@ class RestModule extends CmfModule {
 	public static function initMenu(DashboardUI $ui) {
 		$passport = whoami('admin');
 		if ($passport->cando('m:api')) {
-			$navi          = $ui->getMenu('api', '接口(API)');
+			$navi          = $ui->getMenu('api', '接口');
 			$navi->icon    = 'fa fa-code-fork';
 			$navi->pos     = 900;
 			$navi->iconCls = 'bg-success';

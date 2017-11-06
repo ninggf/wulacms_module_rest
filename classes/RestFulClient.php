@@ -35,14 +35,28 @@ class RestFulClient {
 	}
 
 	/**
+	 * 析构.
+	 */
+	public function __destruct() {
+		if ($this->curl) {
+			@curl_close($this->curl);
+			$this->curl = null;
+		}
+	}
+
+	/**
 	 * 设置cookie。
 	 *
-	 * @param string $cookie k=v
+	 * @param string|null $cookie k=v 当传null时，清空之前设置的cookie
 	 *
 	 * @return $this
 	 */
-	public function cookie($cookie) {
-		$this->cookies[] = $cookie;
+	public function cookie($cookie = null) {
+		if ($cookie === null) {
+			$this->cookies = [];
+		} else {
+			$this->cookies[] = $cookie;
+		}
 
 		return $this;
 	}
@@ -50,25 +64,21 @@ class RestFulClient {
 	/**
 	 * 设置请求头.
 	 *
-	 * @param string $header
-	 * @param string $value
+	 * @param string $header null时清空所有已设header
+	 * @param string $value  null时清空当前header
 	 *
 	 * @return $this
 	 */
-	public function header($header, $value) {
-		$this->headers[ $header ] = $value;
+	public function header($header = null, $value = null) {
+		if ($header === null) {
+			$this->headers = [];
+		} else if ($value === null) {
+			unset($this->headers[ $header ]);
+		} else {
+			$this->headers[ $header ] = $header . ': ' . $value;
+		}
 
 		return $this;
-	}
-
-	/**
-	 * 析构.
-	 */
-	public function __destruct() {
-		if ($this->curl) {
-			curl_close($this->curl);
-			$this->curl = null;
-		}
 	}
 
 	/**
@@ -86,7 +96,7 @@ class RestFulClient {
 		curl_setopt($this->curl, CURLOPT_URL, $url);
 		curl_setopt($this->curl, CURLOPT_HTTPGET, 1);
 		curl_setopt($this->curl, CURLOPT_UPLOAD, false);
-		if (is_numeric($timeout)) {
+		if (is_numeric($timeout) && $timeout) {
 			$this->timeout = $timeout;
 			curl_setopt($this->curl, CURLOPT_TIMEOUT, $timeout);
 		}
@@ -154,7 +164,7 @@ class RestFulClient {
 		curl_setopt($this->curl, CURLOPT_POST, true);
 		curl_setopt($this->curl, CURLOPT_POSTFIELDS, $params);
 
-		if (is_numeric($timeout)) {
+		if ($timeout && is_numeric($timeout)) {
 			$this->timeout = $timeout;
 			curl_setopt($this->curl, CURLOPT_TIMEOUT, $timeout);
 		}
@@ -180,19 +190,59 @@ class RestFulClient {
 			$this->curl = null;
 		}
 		if (empty ($rst)) {
-			return ['error' => ['code' => 106, 'msg' => __('Internal error.')]];
+			return ['response' => ['error' => ['code' => 106, 'msg' => __('Internal error.')]]];
 		} else {
 			$json = @json_decode($rst, true);
 			if ($json) {
 				return $json;
 			} else {
 				return [
-					'error' => [
-						'code'         => 107,
-						'msg'          => __('Not supported response format.'),
-						'responseText' => $rst
+					'response' => [
+						'error' => [
+							'code'         => 107,
+							'msg'          => __('Not supported response format.'),
+							'responseText' => $rst
+						]
 					]
 				];
+			}
+		}
+	}
+
+	/**
+	 * 将结果转换为ARRAY
+	 *
+	 * @param null|string $rst
+	 *
+	 * @return array
+	 */
+	public function toArray($rst = null) {
+		return $this->getReturn($rst);
+	}
+
+	/**
+	 * 将结果转换为XML结果。
+	 *
+	 * @param null|string $rst
+	 *
+	 * @return \SimpleXMLElement
+	 */
+	public function toXml($rst = null) {
+		if ($rst === null) {
+			$rst = curl_exec($this->curl);
+			if ($rst === false) {
+				log_warn(curl_error($this->curl), 'rest.err');
+			}
+			curl_close($this->curl);
+			$this->curl = null;
+		}
+		if (empty ($rst)) {
+			return new \SimpleXMLElement('<response><error><code>106</code><msg>' . __('Internal error.') . '</msg></error></response>');
+		} else {
+			try {
+				return @new \SimpleXMLElement($rst);
+			} catch (\Exception $e) {
+				return new \SimpleXMLElement('<response><error><code>107</code><msg>' . __('Not supported response format.') . '</msg></error></response>');
 			}
 		}
 	}
@@ -318,11 +368,20 @@ class RestFulClient {
 	 * @param array  $params
 	 * @param string $api
 	 */
-	private function prepare(&$params, $api) {
+	protected function prepare(&$params, $api) {
 		$params ['api']     = $api;
 		$params ['app_key'] = $this->appKey;
 		if (!isset($params['v'])) {
 			$params ['v'] = $this->ver;
+		}
+		if (!isset($params['sign_method'])) {
+			$params['sign_method'] = 'hmac';
+		}
+		if (!isset($params['timestamp'])) {
+			$params['timestamp'] = gmdate('Y-m-d H:i:s') . ' GMT';
+		}
+		if (!isset($params['format'])) {
+			$params['format'] = 'json';
 		}
 		$params ['sign'] = self::chucksum($params, $this->appSecret);
 		if (!$this->curl) {
@@ -335,10 +394,10 @@ class RestFulClient {
 		curl_setopt($this->curl, CURLOPT_TIMEOUT, $this->timeout);
 		curl_setopt($this->curl, CURLOPT_POSTFIELDS, []);
 		if ($this->cookies) {
-			curl_setopt($this->curl, CURLOPT_COOKIE, $this->cookies);
+			curl_setopt($this->curl, CURLOPT_COOKIE, implode('; ', $this->cookies));
 		}
 		if ($this->headers) {
-			curl_setopt($this->curl, CURLOPT_HEADER, $this->headers);
+			curl_setopt($this->curl, CURLOPT_HTTPHEADER, array_values($this->headers));
 		}
 	}
 

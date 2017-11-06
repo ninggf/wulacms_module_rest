@@ -191,12 +191,8 @@ class IndexController extends Controller {
 			fire('rest\endCall', $etime, $data);
 		}
 		if ($format == 'json') {
-			return isset($data['error']) ? $data : ['response' => $data];
+			return ['response' => $data];
 		} else {
-			if (isset($data['error'])) {
-				return new XmlView($data['error'], 'error');
-			}
-
 			return new XmlView($data, 'response');
 		}
 	}
