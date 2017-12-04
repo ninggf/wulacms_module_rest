@@ -17,7 +17,7 @@
             <div class="markdown-body">{$return}</div>
         </div>
         <div class="tab-pane" id="api-sandbox">
-            <div class="wrapper-lg">
+            <div class="wrapper-lg max-w-800">
                 <form name="ApiTestForm" action="{'~rest/doc/test'|app}" class="form-horizontal" method="post"
                       data-validate="{$rule|escape}" data-ajax>
                     <input type="hidden" name="v" value="{$version}"/>
@@ -25,14 +25,12 @@
                     <input type="hidden" name="_mehtod" value="{$method}"/>
                     <input type="hidden" name="_params" value="{$params}"/>
                     {$form|render}
-                    <div class="line line-dashed line-lg pull-in"></div>
                     <div class="form-group">
                         <div class="col-md-offset-2 col-md-10 col-xs-12">
                             <button type="submit" class="btn btn-primary">提交测试</button>
                             <button type="reset" class="btn btn-default">重置</button>
                         </div>
                     </div>
-                    <div class="line line-dashed line-lg pull-in"></div>
                 </form>
                 <div id="api-test-result"></div>
             </div>

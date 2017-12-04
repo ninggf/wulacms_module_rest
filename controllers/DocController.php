@@ -258,9 +258,6 @@ class DocController extends BackendController {
 				}
 			}
 		} else {
-			$data[]  = ['id' => '_intro', 'name' => 'API接入详解', 'type' => 'intro'];
-			$data[]  = ['id' => '_errCode', 'name' => '全局错误代码', 'type' => 'errCode'];
-			$data[]  = ['id' => '_impl', 'name' => 'API开发详解', 'type' => 'impl'];
 			$modules = App::modules('installed');
 			foreach ($modules as $mid => $module) {
 				$path = $module->getPath() . DS . 'api';
@@ -272,6 +269,9 @@ class DocController extends BackendController {
 					];
 				}
 			}
+			$data[] = ['id' => '_intro', 'name' => 'API接入详解', 'type' => 'intro'];
+			$data[] = ['id' => '_errCode', 'name' => '全局错误代码', 'type' => 'errCode'];
+			$data[] = ['id' => '_impl', 'name' => 'API开发详解', 'type' => 'impl'];
 		}
 
 		return $data;

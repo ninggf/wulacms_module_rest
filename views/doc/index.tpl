@@ -1,10 +1,7 @@
 <div class="hbox stretch">
     <aside class="aside aside-lg b-r">
         <div class="vbox">
-            <header class="header bg-light dk b-b">
-                <p class="h4">文档目录</p>
-            </header>
-            <section class="scrollable">
+            <section class="scrollable m-t-md">
                 <div class="slim-scroll" data-height="100%" data-disable-fade-out="true" data-distance="0"
                      data-size="5px" data-color="#333333">
                     <div class="ztree m-l-n-xs" data-ztree="{"~rest/doc/dic"|app}" id="rest-app-doc-dic"
