@@ -10,7 +10,7 @@
 
 namespace rest\controllers;
 
-use dashboard\classes\BackendController;
+use backend\classes\IFramePageController;
 use Michelf\MarkdownExtra;
 use rest\classes\API;
 use rest\classes\RestFulClient;
@@ -19,18 +19,15 @@ use wula\ui\classes\BootstrapFormRender;
 use wulaphp\app\App;
 use wulaphp\io\Ajax;
 use wulaphp\util\Annotation;
-use wulaphp\validator\JQueryValidatorController;
 
 /**
  * Class DocController
  * @package rest\controllers
  * @acl     m:api
  */
-class DocController extends BackendController {
-	use JQueryValidatorController;
-
+class DocController extends IFramePageController {
 	public function index() {
-		return view();
+		return $this->render();
 	}
 
 	public function doc($type) {

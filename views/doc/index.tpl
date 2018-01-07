@@ -4,7 +4,7 @@
             <section class="scrollable m-t-md">
                 <div class="slim-scroll" data-height="100%" data-disable-fade-out="true" data-distance="0"
                      data-size="5px" data-color="#333333">
-                    <div class="ztree m-l-n-xs" data-ztree="{"~rest/doc/dic"|app}" id="rest-app-doc-dic"
+                    <div class="ztree m-l-n-xs" data-ztree="{"rest/doc/dic"|app}" id="rest-app-doc-dic"
                          data-lazy></div>
                 </div>
             </section>

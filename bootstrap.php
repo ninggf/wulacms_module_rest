@@ -2,7 +2,7 @@
 
 namespace rest;
 
-use dashboard\classes\DashboardUI;
+use backend\classes\DashboardUI;
 use wula\cms\CmfModule;
 use wulaphp\app\App;
 use wulaphp\auth\AclResourceManager;
@@ -42,7 +42,7 @@ class RestModule extends CmfModule {
 	}
 
 	/**
-	 * @param \dashboard\classes\DashboardUI $ui
+	 * @param \backend\classes\DashboardUI $ui
 	 *
 	 * @bind dashboard\initUI
 	 */
