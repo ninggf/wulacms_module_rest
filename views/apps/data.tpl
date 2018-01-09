@@ -16,10 +16,9 @@
             {/if}
         </td>
         <td class="text-right">
-            <a href="{'~rest/apps/edit'|app}/{$item.id}" data-ajax="dialog" data-dialog-width="700px"
-               data-dialog-id="dlg-app-form" data-dialog-title="编辑『{$item.name|escape}』" data-dialog-type="orange"
-               data-dialog-icon="fa fa-anchor" class="btn btn-xs edit-app"> <i
-                        class="fa fa-pencil-square-o text-primary"></i>
+            <a href="{'rest/apps/edit'|app}/{$item.id}" data-ajax="dialog" data-area="700px,auto"
+               data-title="编辑『{$item.name|escape}』" class="btn btn-xs edit-app">
+                <i class="fa fa-pencil-square-o text-primary"></i>
             </a>
         </td>
     </tr>

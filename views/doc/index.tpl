@@ -1,12 +1,8 @@
-<div class="hbox stretch">
+<div class="hbox stretch wulaui">
     <aside class="aside aside-lg b-r">
         <div class="vbox">
-            <section class="scrollable m-t-md">
-                <div class="slim-scroll" data-height="100%" data-disable-fade-out="true" data-distance="0"
-                     data-size="5px" data-color="#333333">
-                    <div class="ztree m-l-n-xs" data-ztree="{"rest/doc/dic"|app}" id="rest-app-doc-dic"
-                         data-lazy></div>
-                </div>
+            <section class="scrollable m-t-sm">
+                <div class="ztree m-l-n-xs" data-ztree="{"rest/doc/dic"|app}" id="rest-app-doc-dic" data-lazy></div>
             </section>
         </div>
     </aside>
@@ -19,11 +15,10 @@
             </section>
         </div>
     </section>
-    <script type="text/javascript">
-		requirejs(['ztree'], function () {
+    <script>
+		layui.link("{'wula/jqadmin/css/md.min.css'|vendor}").use(['jquery', 'bootstrap', 'ztree', 'wulaui'], function ($, b, z, wulaui) {
 			$('#rest-app-doc-dic').on('ztree.init', function (e) {
-				var docWrapper  = $('#rest-app-doc');
-				var settings    = {
+				var docWrapper = $('#rest-app-doc'), settings = {
 					view    : {
 						showLine: 0,
 					},
@@ -36,16 +31,18 @@
 					callback: {
 						onClick: function (e, treeId, treeNode) {
 							if (treeNode.v) {
-								docWrapper.reload(wulapp('~rest/doc/view/' + treeNode.v + '/' + treeNode.id + '/' + treeNode.post));
+								docWrapper.reload(wulaui.app('rest/doc/view/' + treeNode.v + '/' + treeNode.id + '/' + treeNode.post));
 							} else if (treeNode.type) {
-								docWrapper.reload(wulapp('~rest/doc/doc/' + treeNode.type), true);
+								docWrapper.reload(wulaui.app('rest/doc/doc/' + treeNode.type), true);
 							}
 							return false;
 						}
 					}
 				};
-				e.tree.settings = $.extend(true, e.tree.settings, settings);
-			}).wulatreeLoad();
+				$.extend(true, e.tree, {
+					settings: settings
+				});
+			}).wulatree('load')
 		});
     </script>
 </div>

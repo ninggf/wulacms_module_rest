@@ -10,10 +10,10 @@
 
 namespace rest\controllers;
 
-use dashboard\classes\BackendController;
+use backend\classes\IFramePageController;
+use backend\form\BootstrapFormRender;
 use rest\classes\RestAppForm;
 use rest\models\RestApp;
-use wula\ui\classes\BootstrapFormRender;
 use wulaphp\app\App;
 use wulaphp\db\DatabaseConnection;
 use wulaphp\io\Ajax;
@@ -25,17 +25,15 @@ use wulaphp\validator\ValidateException;
  * @package rest\controllers
  * @acl     app:api
  */
-class AppsController extends BackendController {
+class AppsController extends IFramePageController {
 	use JQueryValidatorController;
 
 	public function index() {
-		$data = [];
-
-		return view($data);
+		return $this->render();
 	}
 
 	public function edit($id = '') {
-		$form = new RestAppForm();
+		$form = new RestAppForm(!0);
 		if ($id) {
 			$admin = $form->get($id);
 			$user  = $admin->get(0);
@@ -55,15 +53,17 @@ class AppsController extends BackendController {
 		if ($ids) {
 			if ($ids) {
 				$error = '';
+				try {
+					$rst = App::db()->trans(function (DatabaseConnection $db) use ($ids) {
+						if (!$db->delete()->from('{rest_app}')->where(['id IN' => $ids])->exec()) {
+							return false;
+						}
 
-				$rst = App::db()->trans(function (DatabaseConnection $db) use ($ids) {
-					if (!$db->delete()->from('{rest_app}')->where(['id IN' => $ids])->exec()) {
-						return false;
-					}
-
-					return true;
-				}, $error);
-
+						return true;
+					}, $error);
+				} catch (\Exception $e) {
+					$rst = false;
+				}
 				if ($rst) {
 					return Ajax::reload('#rest-apps-list', '所选应用已删除');
 				} else {
@@ -80,7 +80,11 @@ class AppsController extends BackendController {
 		if ($ids) {
 			$status = $status === '1' ? 1 : 0;
 			if ($ids) {
-				App::db()->update('{rest_app}')->set(['status' => $status])->where(['id IN' => $ids])->exec();
+				try {
+					App::db()->update('{rest_app}')->set(['status' => $status])->where(['id IN' => $ids])->exec();
+				} catch (\Exception $e) {
+					return Ajax::error($e->getMessage());
+				}
 			}
 
 			return Ajax::reload('#rest-apps-list', $status == '1' ? '所选应用已激活' : '所选应用已禁用');
@@ -90,7 +94,7 @@ class AppsController extends BackendController {
 	}
 
 	public function savePost($id) {
-		$form = new RestAppForm();
+		$form = new RestAppForm(!0);
 		$app  = $form->inflate();
 		try {
 			$form->validate($app);

@@ -20,7 +20,7 @@ class SandboxForm extends FormTable {
 	public  $table = null;
 	/**
 	 * API URL
-	 * @var \wula\ui\classes\TextField
+	 * @var \backend\form\TextField
 	 * @type string
 	 * @required
 	 * @url
@@ -29,7 +29,7 @@ class SandboxForm extends FormTable {
 	public $api_host;
 	/**
 	 * APP KEY
-	 * @var \wula\ui\classes\TextField
+	 * @var \backend\form\TextField
 	 * @type string
 	 * @required
 	 * @option {"placeholder":"app key"}
@@ -37,7 +37,7 @@ class SandboxForm extends FormTable {
 	public $app_key;
 	/**
 	 * APP SESCRET
-	 * @var \wula\ui\classes\TextField
+	 * @var \backend\form\TextField
 	 * @type string
 	 * @required
 	 * @option {"placeholder":"app secret"}
@@ -45,7 +45,7 @@ class SandboxForm extends FormTable {
 	public $app_secret;
 	/**
 	 * session
-	 * @var \wula\ui\classes\TextField
+	 * @var \backend\form\TextField
 	 * @type string
 	 * @note 如果接口需要会话支持请填写此值.
 	 */
@@ -64,7 +64,7 @@ class SandboxForm extends FormTable {
 		$ann    = new Annotation([
 			'type' => 'int',
 			'skip' => true,
-			'var'  => 'wula\ui\classes\Separator'
+			'var'  => 'backend\form\Separator'
 		]);
 		$this->addField('_sepa', $ann);
 		foreach ($inputs as $f => $input) {
@@ -78,7 +78,7 @@ class SandboxForm extends FormTable {
 					'label'  => $f,
 					'note'   => $desc,
 					'option' => ['placeholder' => substr($type, 0, -2)],
-					'var'    => 'wula\ui\classes\TextField'
+					'var'    => 'backend\form\TextField'
 				]);
 				$this->addField($f, $ann);
 			} else if ($type == 'object') {
@@ -90,7 +90,7 @@ class SandboxForm extends FormTable {
 							'label'  => $f . '.' . $k,
 							'note'   => $desc,
 							'option' => ['placeholder' => $v],
-							'var'    => 'wula\ui\classes\TextField'
+							'var'    => 'backend\form\TextField'
 						]);
 						$this->addField($f . '[' . $k . ']', $ann);
 					}
@@ -101,7 +101,7 @@ class SandboxForm extends FormTable {
 					'label'  => $f,
 					'note'   => $desc,
 					'option' => ['placeholder' => $type],
-					'var'    => 'wula\ui\classes\TextField'
+					'var'    => 'backend\form\TextField'
 				]);
 				$this->addField($f, $ann);
 			}

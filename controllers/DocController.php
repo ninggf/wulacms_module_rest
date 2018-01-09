@@ -11,11 +11,11 @@
 namespace rest\controllers;
 
 use backend\classes\IFramePageController;
+use backend\form\BootstrapFormRender;
 use Michelf\MarkdownExtra;
 use rest\classes\API;
 use rest\classes\RestFulClient;
 use rest\classes\SandboxForm;
-use wula\ui\classes\BootstrapFormRender;
 use wulaphp\app\App;
 use wulaphp\io\Ajax;
 use wulaphp\util\Annotation;
@@ -35,7 +35,7 @@ class DocController extends IFramePageController {
 		$file = $this->module->getPath($type . '.md');
 		if (is_file($file)) {
 			$content     = file_get_contents($file);
-			$content     = str_replace(['$app_url$'], [App::url('~') . App::hash('~rest/apps')], $content);
+			$content     = str_replace(['$app_url$'], [App::url('rest/apps')], $content);
 			$data['doc'] = MarkdownExtra::defaultTransform($content);
 		}
 
@@ -275,7 +275,7 @@ class DocController extends IFramePageController {
 	}
 
 	public function createSandboxForm($inputs) {
-		$form = new SandboxForm();
+		$form = new SandboxForm(!0);
 		if ($inputs) {
 			$form->setInputs($inputs);
 		}

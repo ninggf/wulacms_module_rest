@@ -18,14 +18,14 @@ class RestAppForm extends FormTable {
 
 	/**
 	 * 启用
-	 * @var \wula\ui\classes\CheckboxField
+	 * @var \backend\form\CheckboxField
 	 * @type bool
 	 * @layout 1,col-xs-12
 	 */
 	public $status = 1;
 	/**
 	 * 应用名称
-	 * @var \wula\ui\classes\TextField
+	 * @var \backend\form\TextField
 	 * @type string
 	 * @required
 	 * @layout 2,col-xs-12 col-sm-4
@@ -33,7 +33,7 @@ class RestAppForm extends FormTable {
 	public $name;
 	/**
 	 * 回调URL
-	 * @var \wula\ui\classes\TextField
+	 * @var \backend\form\TextField
 	 * @type string
 	 * @url
 	 * @layout 2,col-xs-12 col-sm-8
@@ -41,7 +41,7 @@ class RestAppForm extends FormTable {
 	public $callback_url;
 	/**
 	 * APPKEY
-	 * @var \wula\ui\classes\TextField
+	 * @var \backend\form\TextField
 	 * @type string
 	 * @option {"readonly":true}
 	 * @layout 3,col-xs-12 col-sm-4
@@ -49,7 +49,7 @@ class RestAppForm extends FormTable {
 	public $appkey;
 	/**
 	 * APPSECRET
-	 * @var \wula\ui\classes\TextField
+	 * @var \backend\form\TextField
 	 * @type string
 	 * @required
 	 * @layout 3,col-xs-12 col-sm-8
@@ -57,15 +57,27 @@ class RestAppForm extends FormTable {
 	public $appsecret;
 	/**
 	 * 说明
-	 * @var \wula\ui\classes\TextareaField
+	 * @var \backend\form\TextareaField
 	 * @type string
 	 */
 	public $note;
 
+	/**
+	 * @param $app
+	 *
+	 * @return bool|int
+	 * @throws \wulaphp\validator\ValidateException
+	 */
 	public function newApp($app) {
 		return $this->insert($app);
 	}
 
+	/**
+	 * @param $app
+	 *
+	 * @return bool|\wulaphp\db\sql\UpdateSQL
+	 * @throws \wulaphp\validator\ValidateException
+	 */
 	public function updateApp($app) {
 		$id = $app['id'];
 

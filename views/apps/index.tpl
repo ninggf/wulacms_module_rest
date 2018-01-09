@@ -2,19 +2,18 @@
     <header class="header bg-light dk b-b clearfix">
         <div class="row m-t-sm">
             <div class="col-sm-6 m-b-xs">
-                <a href="{'~rest/apps/edit'|app}" class="btn btn-sm btn-success edit-app" data-ajax="dialog"
-                   data-dialog-width="700px" data-dialog-id="dlg-app-form" data-dialog-title="新的应用"
-                   data-dialog-type="green" data-dialog-icon="fa fa-anchor">
+                <a href="{'rest/apps/edit'|app}" class="btn btn-sm btn-success edit-app" data-ajax="dialog"
+                   data-area="700px,auto" data-title="新的应用">
                     <i class="fa fa-plus"></i> 新的应用
                 </a>
                 <div class="btn-group">
-                    <a href="{'~rest/apps/del'|app}" data-ajax data-grp="#rest-apps-list tbody input.grp:checked"
+                    <a href="{'rest/apps/del'|app}" data-ajax data-grp="#rest-apps-list tbody input.grp:checked"
                        data-confirm="你真的要删除这些应用吗？" data-warn="请选择要删除的应用" class="btn btn-danger btn-sm"><i
                                 class="fa fa-trash"></i> 删除</a>
-                    <a href="{'~rest/apps/set-status/0'|app}" data-ajax
+                    <a href="{'rest/apps/set-status/0'|app}" data-ajax
                        data-grp="#rest-apps-list tbody input.grp:checked" data-confirm="你真的要禁用这些应用吗？"
                        data-warn="请选择要禁用的应用" class="btn btn-sm btn-warning"><i class="fa fa-square-o"></i> 禁用</a>
-                    <a href="{'~rest/apps/set-status/1'|app}" data-ajax
+                    <a href="{'rest/apps/set-status/1'|app}" data-ajax
                        data-grp="#rest-apps-list tbody input.grp:checked" data-confirm="你真的要激活这些应用吗？"
                        data-warn="请选择要激活的应用" class="btn btn-sm btn-primary"><i class="fa fa-check-square-o"></i>
                         激活</a>
@@ -24,7 +23,7 @@
                 <form data-table-form="#rest-apps-list" class="form-inline">
                     <div class="checkbox m-l-xs m-r-xs">
                         <label>
-                            <input type="checkbox" name="status" value="0" onchange="$('#btn-do-search').click()"/>
+                            <input type="checkbox" name="status" value="0" id="astatus"/>
                             被禁用的
                         </label>
                     </div>
@@ -40,7 +39,7 @@
     </header>
     <section class="w-f bg-white">
         <div class="table-responsive">
-            <table id="rest-apps-list" data-auto data-table="{'~rest/apps/data'|app}" data-sort="status,d"
+            <table id="rest-apps-list" data-auto data-table="{'rest/apps/data'|app}" data-sort="status,d"
                    style="min-width: 800px">
                 <thead>
                 <tr>
@@ -60,25 +59,22 @@
         <div data-table-pager="#rest-apps-list"></div>
     </footer>
     <script type="text/javascript">
-		$('#rest-app-workset').on('build.dialog', '.edit-app', function (e) {
-			e.buttons = {
-				ok    : {
-					text    : '保存',
-					btnClass: 'btn-green',
-					action  : function () {
-						$('#rest-app-form').data('ajaxDone', 'close:dlg-app-form').submit();
+		layui.use(['jquery', 'wulaui'], function ($) {
+			$('#astatus').change(function () {
+				$('#btn-do-search').click()
+			});
+			$('#rest-app-workset').on('before.dialog', '.edit-app', function (e) {
+				e.options.btn  = ['保存', '取消'];
+				e.options.yes  = function () {
+					$('#rest-app-form').data('ajaxDone', 'close:dlg-app-form').submit();
+					return false;
+				};
+				e.options.btn2 = function () {
+					if ($('#rest-app-form').data('ajaxSending')) {
 						return false;
 					}
-				},
-				cancel: {
-					text  : '取消',
-					action: function () {
-						if ($('#rest-app-form').data('ajaxSending')) {
-							return false;
-						}
-					}
 				}
-			};
+			});
 		});
     </script>
 </section>

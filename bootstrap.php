@@ -48,23 +48,22 @@ class RestModule extends CmfModule {
 	 */
 	public static function initMenu(DashboardUI $ui) {
 		$passport = whoami('admin');
-		if ($passport->cando('m:api')) {
-			$navi          = $ui->getMenu('api', '接口');
-			$navi->icon    = 'fa fa-code-fork';
-			$navi->pos     = 900;
-			$navi->iconCls = 'bg-success';
+		if ($passport->cando('m:api') && $passport->cando('m:system')) {
+			$menu       = $ui->getMenu('system');
+			$navi       = $menu->getMenu('api', '接口');
+			$navi->icon = '&#xe62c;';
+			$navi->pos  = 900;
 
-			$doc            = $navi->getMenu('doc', '接口文档');
-			$doc->pos       = 1;
-			$doc->icon      = 'fa fa-book';
-			$doc->iconStyle = 'color:green';
-			$doc->url       = App::hash('~rest/doc');
+			$doc              = $navi->getMenu('doc', '接口文档');
+			$doc->pos         = 1;
+			$doc->icon        = '&#xe6bc;';
+			$doc->data['url'] = App::url('rest/doc');
 
-			$app            = $navi->getMenu('app', '应用管理');
-			$app->pos       = 2;
-			$app->icon      = 'fa fa-anchor';
-			$app->iconStyle = 'color:orange';
-			$app->url       = App::hash('~rest/apps');
+			$app              = $navi->getMenu('app', '接口应用');
+			$app->pos         = 2;
+			$app->icon        = '&#xe682;';
+			$app->iconStyle   = 'color:orange';
+			$app->data['url'] = App::url('rest/apps');
 		}
 	}
 }

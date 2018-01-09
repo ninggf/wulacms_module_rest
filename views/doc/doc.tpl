@@ -5,7 +5,7 @@
                 {$doc}
             </div>
             <script type="text/javascript">
-				requirejs(['highlight'], function () {
+				layui.use(['jquery', 'highlight'], function ($) {
 					$('#com-api-doc .markdown-body pre code').each(function (i, code) {
 						hljs.highlightBlock(code);
 					});

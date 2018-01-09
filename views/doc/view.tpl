@@ -18,7 +18,7 @@
         </div>
         <div class="tab-pane" id="api-sandbox">
             <div class="wrapper-lg max-w-800">
-                <form name="ApiTestForm" action="{'~rest/doc/test'|app}" class="form-horizontal" method="post"
+                <form name="ApiTestForm" action="{'rest/doc/test'|app}" class="form-horizontal" method="post"
                       data-validate="{$rule|escape}" data-ajax>
                     <input type="hidden" name="v" value="{$version}"/>
                     <input type="hidden" name="api" value="{$api}"/>
@@ -37,7 +37,7 @@
         </div>
     </div>
     <script type="text/javascript">
-		requirejs(['highlight'], function () {
+		layui.use(['jquery', 'highlight'], function ($) {
 			$('.markdown-body pre code').each(function (i, code) {
 				hljs.highlightBlock(code);
 			});
