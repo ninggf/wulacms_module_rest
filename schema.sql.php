@@ -7,6 +7,9 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
+defined('APPROOT') or header('Page Not Found', true, 404) || die();
+
 $tables ['1.0.0'] [] = "CREATE TABLE `{prefix}rest_app` (
     `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `create_time` INT UNSIGNED NOT NULL,

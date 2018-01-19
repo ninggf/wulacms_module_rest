@@ -58,12 +58,13 @@ class RestModule extends CmfModule {
 			$doc->pos         = 1;
 			$doc->icon        = '&#xe6bc;';
 			$doc->data['url'] = App::url('rest/doc');
-
-			$app              = $navi->getMenu('app', '接口应用');
-			$app->pos         = 2;
-			$app->icon        = '&#xe682;';
-			$app->iconStyle   = 'color:orange';
-			$app->data['url'] = App::url('rest/apps');
+			if ($passport->cando('app:api')) {
+				$app              = $navi->getMenu('app', '接口应用');
+				$app->pos         = 2;
+				$app->icon        = '&#xe682;';
+				$app->iconStyle   = 'color:orange';
+				$app->data['url'] = App::url('rest/apps');
+			}
 		}
 	}
 }
