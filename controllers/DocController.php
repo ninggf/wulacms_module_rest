@@ -233,7 +233,7 @@ class DocController extends IFramePageController {
 							$apic['id']       = $id . '/' . $ns;
 							$apic['name']     = $cna->getString('name', preg_replace('/Api$/', '', $ns));
 							$apic['isParent'] = true;
-							$methods          = $ref->getMethods();
+							$methods          = $ref->getMethods(\ReflectionMethod::IS_PUBLIC);
 							$rname            = lcfirst(preg_replace('/Api$/', '', $ref->getShortName()));
 							$children         = [];
 							foreach ($methods as $method) {

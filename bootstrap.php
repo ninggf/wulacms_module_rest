@@ -14,7 +14,7 @@ use wulaphp\auth\AclResourceManager;
  */
 class RestModule extends CmfModule {
 	public function getName() {
-		return '应用接口';
+		return '应用接入';
 	}
 
 	public function getDescription() {
@@ -49,22 +49,26 @@ class RestModule extends CmfModule {
 	public static function initMenu(DashboardUI $ui) {
 		$passport = whoami('admin');
 		if ($passport->cando('m:api') && $passport->cando('m:system')) {
-			$menu       = $ui->getMenu('system');
-			$navi       = $menu->getMenu('api', '接口');
-			$navi->icon = '&#xe62c;';
-			$navi->pos  = 900;
+			$menu          = $ui->getMenu('system');
+			$navi          = $menu->getMenu('api', '应用接入');
+			$navi->iconCls = 'layui-icon';
+			$navi->icon    = '&#xe63b;';
+			$navi->pos     = 900;
 
 			$doc              = $navi->getMenu('doc', '接口文档');
 			$doc->pos         = 1;
 			$doc->icon        = '&#xe6bc;';
 			$doc->data['url'] = App::url('rest/doc');
 			if ($passport->cando('app:api')) {
-				$app              = $navi->getMenu('app', '接口应用');
+				$app              = $navi->getMenu('app', '接入验证');
 				$app->pos         = 2;
-				$app->icon        = '&#xe682;';
-				$app->iconStyle   = 'color:orange';
+				$app->icon        = '&#xe63f;';
+				$app->iconStyle   = 'color:green';
 				$app->data['url'] = App::url('rest/apps');
 			}
+			$cl              = $navi->getMenu('client', '客户端', 3);
+			$cl->data['url'] = App::url('rest/client');
+			$cl->icon        = '&#xe682;';
 		}
 	}
 }

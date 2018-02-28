@@ -141,6 +141,7 @@ class IndexController extends Controller {
 
 			if ($session) {//启动了session
 				//要指定session超时
+				define('REST_SESSION_ID', $session);
 				(new Session())->start($session);
 			}
 			try {

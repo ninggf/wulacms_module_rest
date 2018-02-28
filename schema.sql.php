@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-defined('APPROOT') or header('Page Not Found', true, 404) || die();
+@defined('APPROOT') or header('Page Not Found', true, 404) || die();
 
 $tables ['1.0.0'] [] = "CREATE TABLE `{prefix}rest_app` (
     `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -24,4 +24,4 @@ $tables ['1.0.0'] [] = "CREATE TABLE `{prefix}rest_app` (
     `note` VARCHAR(256) NULL COMMENT '说明',
     PRIMARY KEY (`id`),
     UNIQUE INDEX `UDX_APPKEY` (`appkey` ASC)
-)  ENGINE=InnoDB DEFAULT CHARACTER SET=utf8 COMMENT='可通过RESTful接入的应用'";
+)  ENGINE=InnoDB DEFAULT CHARACTER SET={encoding} COMMENT='可通过RESTful接入的应用'";

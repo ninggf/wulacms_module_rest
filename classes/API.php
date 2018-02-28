@@ -27,4 +27,15 @@ abstract class API {
 
 	}
 
+	/**
+	 * 返回错误信息.
+	 *
+	 * @param int    $code
+	 * @param string $message
+	 *
+	 * @throws \rest\classes\RestException
+	 */
+	protected function error($code, $message) {
+		throw new RestException($message, $code);
+	}
 }
