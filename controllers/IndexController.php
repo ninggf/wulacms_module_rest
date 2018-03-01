@@ -10,6 +10,7 @@ use wulaphp\app\App;
 use wulaphp\io\Request;
 use wulaphp\io\Session;
 use wulaphp\mvc\controller\Controller;
+use wulaphp\mvc\view\JsonView;
 use wulaphp\mvc\view\XmlView;
 
 /**
@@ -17,6 +18,21 @@ use wulaphp\mvc\view\XmlView;
  */
 class IndexController extends Controller {
 	private $api;
+	private $format;
+
+	public function beforeRun($action, $refMethod) {
+		$domain       = App::cfg('rest_domain');
+		$this->format = rqst('format', 'json');
+		if (!$this->format) {
+			$this->format = 'json';
+		}
+		if ($domain && $_SERVER['HTTP_HOST'] != $domain) {
+			return $this->generateResult($this->format, ['error' => ['code' => 403, 'msg' => 'Forbidden']], false);
+		}
+		$view = parent::beforeRun($action, $refMethod);
+
+		return $view;
+	}
 
 	/**
 	 * 默认控制方法.
@@ -25,10 +41,7 @@ class IndexController extends Controller {
 	 * @return string
 	 */
 	public function index() {
-		$format = rqst('format', 'json');
-		if (!$format) {
-			$format = 'json';
-		}
+		$format = $this->format;
 		//离线检测
 		if (App::bcfg('offline')) {
 			$ips = trim(App::cfg('allowedIp'));
@@ -125,7 +138,7 @@ class IndexController extends Controller {
 				$args['format'] = $format;
 			}
 			$session = rqst('session');
-			if (rqset('session')) {
+			if (rqset('session') && $session) {
 				$args['session'] = $session;
 			}
 			//验签
@@ -143,7 +156,9 @@ class IndexController extends Controller {
 				//要指定session超时
 				define('REST_SESSION_ID', $session);
 				(new Session())->start($session);
+				$clz->sessionId = $session;
 			}
+
 			try {
 				$this->api = $api;
 				fire('rest\callApi', $api, $ctime, $args);
@@ -178,7 +193,7 @@ class IndexController extends Controller {
 	 * @param array  $data
 	 * @param bool   $trigger
 	 *
-	 * @return \wulaphp\mvc\view\XmlView|array
+	 * @return \wulaphp\mvc\view\View
 	 */
 	private function generateResult($format, $data, $trigger = true) {
 		$etime = time();
@@ -192,7 +207,7 @@ class IndexController extends Controller {
 			fire('rest\endCall', $etime, $data);
 		}
 		if ($format == 'json') {
-			return ['response' => $data];
+			return new JsonView(['response' => $data]);
 		} else {
 			return new XmlView($data, 'response');
 		}

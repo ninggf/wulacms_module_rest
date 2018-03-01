@@ -11,6 +11,7 @@
 namespace rest\classes;
 
 abstract class API {
+	public    $sessionId = '';
 	protected $appKey;
 	protected $ver;
 

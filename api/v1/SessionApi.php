@@ -25,8 +25,8 @@ class SessionApi extends API {
 	 * @apiName 启动会话
 	 *
 	 * @return array {
-	 *      "session":"会话ID",
-	 *      "expire":"会话多久后过期，单位秒"
+	 *      "session":"string|会话ID",
+	 *      "expire":"int|会话多久后过期，单位秒"
 	 * }
 	 */
 	public function start() {
@@ -39,11 +39,11 @@ class SessionApi extends API {
 
 	/**
 	 * 检测会话是否过期.
-	 * @apiName Ping
+	 * @apiName 过期检测
 	 *
 	 * @session
 	 * @return array {
-	 *      "pang":1
+	 *      "pang":"int|0过期，1未过期"
 	 * }
 	 */
 	public function ping() {
@@ -59,7 +59,7 @@ class SessionApi extends API {
 	 * @session
 	 *
 	 * @return array {
-	 *      "status":1
+	 *      "status":"int|始终为1"
 	 * }
 	 */
 	public function destroy() {
