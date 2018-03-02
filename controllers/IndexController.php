@@ -7,7 +7,9 @@ use rest\classes\LocalSecretChecker;
 use rest\classes\RestException;
 use rest\classes\RestFulClient;
 use wulaphp\app\App;
+use wulaphp\conf\ConfigurationLoader;
 use wulaphp\io\Request;
+use wulaphp\io\Response;
 use wulaphp\io\Session;
 use wulaphp\mvc\controller\Controller;
 use wulaphp\mvc\view\JsonView;
@@ -19,19 +21,23 @@ use wulaphp\mvc\view\XmlView;
 class IndexController extends Controller {
 	private $api;
 	private $format;
+	/**
+	 * @var \wulaphp\conf\Configuration
+	 */
+	private $cfg;
 
 	public function beforeRun($action, $refMethod) {
-		$domain       = App::cfg('rest_domain');
+		$this->cfg = ConfigurationLoader::loadFromFile('rest');
+		$domain    = $this->cfg->get('domain');
+		if ($domain && $_SERVER['HTTP_HOST'] != $domain) {
+			Response::respond(403);
+		}
 		$this->format = rqst('format', 'json');
 		if (!$this->format) {
 			$this->format = 'json';
 		}
-		if ($domain && $_SERVER['HTTP_HOST'] != $domain) {
-			return $this->generateResult($this->format, ['error' => ['code' => 403, 'msg' => 'Forbidden']], false);
-		}
-		$view = parent::beforeRun($action, $refMethod);
 
-		return $view;
+		return parent::beforeRun($action, $refMethod);
 	}
 
 	/**
@@ -141,21 +147,25 @@ class IndexController extends Controller {
 			if (rqset('session') && $session) {
 				$args['session'] = $session;
 			}
-			//验签
-			$sign1 = RestFulClient::chucksum($args, $appSecret);
-			if ($sign !== $sign1) {
-				return $this->generateResult($format, [
-					'error' => [
-						'code' => 18,
-						'msg'  => '签名错误'
-					]
-				]);
+
+			$dev = $this->cfg->getb('dev', false);
+			if (!$dev) {
+				//验签
+				$sign1 = RestFulClient::chucksum($args, $appSecret);
+				if ($sign !== $sign1) {
+					return $this->generateResult($format, [
+						'error' => [
+							'code' => 18,
+							'msg'  => '签名错误'
+						]
+					]);
+				}
 			}
 
 			if ($session) {//启动了session
-				//要指定session超时
 				define('REST_SESSION_ID', $session);
-				(new Session())->start($session);
+				$expire = $this->cfg->geti('expire', 300);
+				(new Session($expire))->start($session);
 				$clz->sessionId = $session;
 			}
 

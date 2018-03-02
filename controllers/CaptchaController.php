@@ -11,20 +11,25 @@
 namespace rest\controllers;
 
 use backend\classes\CaptchaCode;
-use wulaphp\app\App;
+use wulaphp\conf\ConfigurationLoader;
 use wulaphp\io\Response;
 use wulaphp\io\Session;
 use wulaphp\mvc\controller\Controller;
 
 class CaptchaController extends Controller {
+	/**
+	 * @var \wulaphp\conf\Configuration
+	 */
+	private $cfg;
+
 	public function beforeRun($action, $refMethod) {
-		$domain = App::cfg('rest_domain');
+		$this->cfg = ConfigurationLoader::loadFromFile('rest');
+		$domain    = $this->cfg->get('domain');
 		if ($domain && $_SERVER['HTTP_HOST'] != $domain) {
 			Response::respond(403);
 		}
-		$view = parent::beforeRun($action, $refMethod);
 
-		return $view;
+		return parent::beforeRun($action, $refMethod);
 	}
 
 	public function index($sid, $file = '60x20.15.gif') {
@@ -32,7 +37,8 @@ class CaptchaController extends Controller {
 			Response::respond(403);
 		}
 		Response::nocache();
-		(new Session())->start($sid);
+		$expire = $this->cfg->geti('expire', 300);
+		(new Session($expire))->start($sid);
 		$args = explode('.', $file);
 		$len  = count($args);
 		switch ($len) {

@@ -60,3 +60,21 @@ __参数:__
 * $result 返回值
 
 > 以上触发器的处理器匀应快速返回，不适合做耗时处理。
+
+## 配置
+
+`conf/rest_config.php`是其配置文件:
+
+```php
+<?php
+return [
+	'dev'=>env('rest.dev',false),
+	'domain'=>env('rest.domain',''),
+	'expire'=>env('rest.expire',300)
+];
+```
+**说明如下:**
+
+1. `dev` 开发模式，不验签.
+2. `domain`限定访问域名,接口调用只能通过此域名.
+3. `expire`会话过期时间

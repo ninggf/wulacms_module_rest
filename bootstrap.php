@@ -6,6 +6,7 @@ use backend\classes\DashboardUI;
 use wula\cms\CmfModule;
 use wulaphp\app\App;
 use wulaphp\auth\AclResourceManager;
+use wulaphp\conf\ConfigurationLoader;
 
 /**
  * Class RestModule
@@ -49,6 +50,7 @@ class RestModule extends CmfModule {
 	public static function initMenu(DashboardUI $ui) {
 		$passport = whoami('admin');
 		if ($passport->cando('m:api') && $passport->cando('m:system')) {
+			$cfg           = ConfigurationLoader::loadFromFile('rest');
 			$menu          = $ui->getMenu('system');
 			$navi          = $menu->getMenu('api', '应用接入');
 			$navi->iconCls = 'layui-icon';
@@ -60,10 +62,14 @@ class RestModule extends CmfModule {
 			$doc->icon        = '&#xe6bc;';
 			$doc->data['url'] = App::url('rest/doc');
 			if ($passport->cando('app:api')) {
-				$app              = $navi->getMenu('app', '接入验证');
-				$app->pos         = 2;
-				$app->icon        = '&#xe63f;';
-				$app->iconStyle   = 'color:green';
+				$app       = $navi->getMenu('app', '接入验证');
+				$app->pos  = 2;
+				$app->icon = '&#xe63f;';
+				if ($cfg->getb('dev', false)) {
+					$app->iconStyle = 'color:orange';
+				} else {
+					$app->iconStyle = 'color:green';
+				}
 				$app->data['url'] = App::url('rest/apps');
 			}
 			$cl              = $navi->getMenu('client', '客户端', 3);
