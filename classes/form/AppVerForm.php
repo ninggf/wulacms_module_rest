@@ -88,6 +88,9 @@ class AppVerForm extends FormTable {
 	public function checkFile($value, $data, $msg) {
 		$cfg   = ConfigurationLoader::loadFromFile('rest');
 		$store = $cfg->get('store', 'pkgs');
+		if (preg_match('#^(ht|f)tps?://.+$', $value)) {
+			return true;
+		}
 		if (is_file(WWWROOT . $store . DS . $value)) {
 			return true;
 		}

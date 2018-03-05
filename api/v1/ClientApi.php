@@ -67,7 +67,7 @@ class ClientApi extends API {
 			];
 			$db->insert($data)->into('{app_client}')->exec();
 
-			unset($data['id']);
+			unset($data['id'], $data['channel']);
 			$data['ver']       = $ver;
 			$data['uid']       = intval($uid);
 			$data['client_id'] = $id;
