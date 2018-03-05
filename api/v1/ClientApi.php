@@ -20,12 +20,23 @@ use wulaphp\io\Request;
  * @name 客户端
  */
 class ClientApi extends API {
+	const device = [
+		'web'     => '网站',
+		'ios'     => '苹果',
+		'android' => '安卓',
+		'wxapp'   => '小程序',
+		'wxgame'  => '小游戏',
+		'h5'      => 'H5',
+		'pc'      => 'PC'
+	];
+
 	/**
 	 * @apiName 获取编号
 	 *
-	 * @param string $device (required,sample=ios,android,h5,wxapp,wxgame) 设备类型
-	 * @param string $ver    (required,sample=1.0.0) 软件版本
-	 * @param int    $uid    用户ID（如果用户登录）
+	 * @param string $device  (required,sample=ios,android,h5,wxapp,wxgame,pc,web) 设备类型
+	 * @param string $ver     (required,sample=1.0.0) 软件版本
+	 * @param string $channel (sample=guanfang) 渠道
+	 * @param int    $uid     用户ID（如果用户登录）
 	 *
 	 * @error   403=>错误的设备类型
 	 * @error   404=>版本号为空
@@ -36,8 +47,8 @@ class ClientApi extends API {
 	 * }
 	 * @throws
 	 */
-	public function get($device, $ver, $uid = 0) {
-		if (!in_array($device, ['ios', 'android', 'wxapp', 'wxgame', 'h5'])) {
+	public function get($device, $ver, $channel = '', $uid = 0) {
+		if (!isset(self::device[ $device ])) {
 			$this->error('403', '错误的设备类型');
 		}
 		if (empty($ver)) {
@@ -50,6 +61,7 @@ class ClientApi extends API {
 			$data = [
 				'id'          => $id,
 				'device'      => $device,
+				'channel'     => $channel,
 				'ip'          => Request::getIp(),
 				'create_time' => $time
 			];
@@ -72,7 +84,7 @@ class ClientApi extends API {
 	 * @apiName 日活统计
 	 *
 	 * @param string $id     (required) 客户端ID（通过rest.client.get接口获取的）
-	 * @param string $device (required,sample=ios,android,h5,wxapp,wxgame) 设备
+	 * @param string $device (required,sample=ios,android,h5,wxapp,wxgame,pc,web) 设备
 	 * @param string $ver    (required,sample=1.0.0) 版本
 	 * @param int    $uid    用户ID（如果用户登录）
 	 *
@@ -82,7 +94,7 @@ class ClientApi extends API {
 	 * @throws
 	 */
 	public function log($id, $device, $ver, $uid = 0) {
-		if (!in_array($device, ['ios', 'android', 'wxapp', 'wxgame', 'h5'])) {
+		if (!isset(self::device[ $device ])) {
 			$this->error('403', '错误的设备类型');
 		}
 		if (empty($ver)) {

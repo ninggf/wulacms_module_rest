@@ -70,11 +70,21 @@ __参数:__
 return [
 	'dev'=>env('rest.dev',false),
 	'domain'=>env('rest.domain',''),
-	'expire'=>env('rest.expire',300)
+	'expire'=>env('rest.expire',300),
+	'store'=>env('rest.store'),
+	'zipalign'=>env('rest.zipalign'),
+	'download'=>env('rest.download')
 ];
 ```
 **说明如下:**
 
 1. `dev` 开发模式，不验签.
 2. `domain`限定访问域名,接口调用只能通过此域名.
-3. `expire`会话过期时间
+3. `expire`会话过期时间.
+4. `store` 软件包存储路径
+5. `zipalign` **zipalign**命令路径(用于压缩apk文件)
+6. `download` 下载主机的URL.
+
+## 云端配置
+
+通过勾子`rest\classes\form\AppCfgForm::onParseFields`向系统注册云控项，具体可以参考`FormTable::addField()`。

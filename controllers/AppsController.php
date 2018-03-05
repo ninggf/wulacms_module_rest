@@ -12,6 +12,7 @@ namespace rest\controllers;
 
 use backend\classes\IFramePageController;
 use backend\form\BootstrapFormRender;
+use rest\api\v1\ClientApi;
 use rest\classes\RestAppForm;
 use rest\models\RestApp;
 use wulaphp\app\App;
@@ -142,8 +143,11 @@ class AppsController extends IFramePageController {
 		if ($count) {
 			$total = $apps->total('id');
 		}
-		$data['items'] = $apps;
-		$data['total'] = $total;
+		$data['items']     = $apps;
+		$data['total']     = $total;
+		$data['canCfg']    = $this->passport->cando('cfg:api');
+		$data['pkgMng']    = $this->passport->cando('pkg:api');
+		$data['platforms'] = ClientApi::device;
 
 		return view($data);
 	}

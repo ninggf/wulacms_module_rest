@@ -10,6 +10,7 @@
 
 namespace rest\classes;
 
+use rest\api\v1\ClientApi;
 use wulaphp\form\FormTable;
 use wulaphp\validator\JQueryValidator;
 
@@ -52,9 +53,18 @@ class RestAppForm extends FormTable {
 	 * @var \backend\form\TextField
 	 * @type string
 	 * @required
-	 * @layout 3,col-xs-12 col-sm-8
+	 * @layout 3,col-xs-12 col-sm-4
 	 */
 	public $appsecret;
+	/**
+	 * 平台
+	 * @var \backend\form\SelectField
+	 * @type string
+	 * @required
+	 * @data ::getDeviceList
+	 * @layout 3,col-xs-12 col-sm-4
+	 */
+	public $platform;
 	/**
 	 * 说明
 	 * @var \backend\form\TextareaField
@@ -66,7 +76,7 @@ class RestAppForm extends FormTable {
 	 * @param $app
 	 *
 	 * @return bool|int
-	 * @throws \wulaphp\validator\ValidateException
+	 * @throws
 	 */
 	public function newApp($app) {
 		return $this->insert($app);
@@ -76,11 +86,17 @@ class RestAppForm extends FormTable {
 	 * @param $app
 	 *
 	 * @return bool|\wulaphp\db\sql\UpdateSQL
-	 * @throws \wulaphp\validator\ValidateException
+	 * @throws
 	 */
 	public function updateApp($app) {
 		$id = $app['id'];
 
 		return $this->update($app, ['id' => $id]);
+	}
+
+	public function getDeviceList() {
+		$device = ClientApi::device;
+
+		return $device;
 	}
 }

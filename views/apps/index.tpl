@@ -47,9 +47,11 @@
                     <th width="100">应用名</th>
                     <th width="120">APPKEY</th>
                     <th width="200">APPSECRET</th>
+                    <th width="80" data-sort="platform,a">平台</th>
                     <th>说明</th>
                     <th width="60" data-sort="status,d">状态</th>
-                    <th width="80"></th>
+                    <th width="60">版本</th>
+                    <th width="120"></th>
                 </tr>
                 </thead>
             </table>
@@ -64,9 +66,10 @@
 				$('#btn-do-search').click()
 			});
 			$('#rest-app-workset').on('before.dialog', '.edit-app', function (e) {
+				var $this = $(this);
 				e.options.btn  = ['保存', '取消'];
 				e.options.yes  = function () {
-					$('#rest-app-form').data('ajaxDone', 'close:dlg-app-form').submit();
+					$('#rest-app-form').data('dialogId',$this.data('dialogId')).submit();
 					return false;
 				};
 				e.options.btn2 = function () {

@@ -109,15 +109,16 @@ class IndexController extends Controller {
 			if (!$m) {
 				return $this->generateResult($format, ['error' => ['code' => 14, 'msg' => 'API不存在']]);
 			}
-			$params = [];
-			$ps     = $m->getParameters();
+			$params  = [];//请求参数用于签名
+			$dparams = [];//调用参数
+			$ps      = $m->getParameters();
 			/**@var \ReflectionParameter $p */
 			foreach ($ps as $p) {
 				$name = $p->getName();
 				if (rqset($name)) {
-					$params[ $name ] = rqst($name);
+					$dparams[ $name ] = $params[ $name ] = rqst($name);
 				} else if ($p->isOptional()) {
-					$params[ $name ] = $p->getDefaultValue();
+					$dparams[ $name ] = $p->getDefaultValue();
 				} else {
 					return $this->generateResult($format, ['error' => ['code' => 15, 'msg' => '缺少' . $name . '参数']]);
 				}
@@ -133,21 +134,23 @@ class IndexController extends Controller {
 			}
 			//签名
 			$sign = rqst('sign');
-			$args = array_merge($params, compact([
-				'v',
-				'app_key',
-				'api',
-				'timestamp',
-				'sign_method'
-			]));
+			$args = array_merge($params, [
+				'v'           => $v,
+				'app_key'     => $app_key,
+				'api'         => $api,
+				'timestamp'   => $timestamp,
+				'sign_method' => $sign_method
+			]);
+			//响应格式
 			if (rqset('format')) {
 				$args['format'] = $format;
 			}
+			//会话
 			$session = rqst('session');
 			if (rqset('session') && $session) {
 				$args['session'] = $session;
 			}
-
+			//开发模式
 			$dev = $this->cfg->getb('dev', false);
 			if (!$dev) {
 				//验签
@@ -173,7 +176,7 @@ class IndexController extends Controller {
 				$this->api = $api;
 				fire('rest\callApi', $api, $ctime, $args);
 				$clz->setup();
-				$rtn = $m->invokeArgs($clz, $params);
+				$rtn = $m->invokeArgs($clz, $dparams);
 
 				return $this->generateResult($format, $rtn);
 			} catch (RestException $re) {
@@ -184,7 +187,7 @@ class IndexController extends Controller {
 					]
 				]);
 			} catch (\Exception $e) {
-				log_error('[' . $api . '] failed! ' . $e->getMessage() . "\n" . var_export($params, true), 'api');
+				log_error('[' . $api . '] failed! ' . $e->getMessage() . "\n" . var_export($dparams, true), 'api');
 
 				return $this->generateResult($format, ['error' => ['code' => 500, 'msg' => '内部错误']]);
 			} finally {

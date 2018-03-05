@@ -3,10 +3,12 @@
 namespace rest;
 
 use backend\classes\DashboardUI;
+use backend\form\TextField;
 use wula\cms\CmfModule;
 use wulaphp\app\App;
 use wulaphp\auth\AclResourceManager;
 use wulaphp\conf\ConfigurationLoader;
+use wulaphp\form\FormTable;
 
 /**
  * Class RestModule
@@ -28,7 +30,7 @@ class RestModule extends CmfModule {
 
 	public function getVersionList() {
 		$v['1.0.0'] = '初始化RESTFul.';
-
+		$v['1.1.0'] = '添加';
 		return $v;
 	}
 
@@ -38,8 +40,11 @@ class RestModule extends CmfModule {
 	 * @bind rbac\initAdminManager
 	 */
 	public static function aclcfg(AclResourceManager $manager) {
-		$acl = $manager->getResource('api', '接口', 'm');
-		$acl->addOperate('app', '配置应用');
+		$acl = $manager->getResource('api', '应用接入', 'm');
+		$acl->addOperate('app', '应用管理');
+		$acl->addOperate('cfg', '云端控制');
+		$acl->addOperate('st', '终端列表');
+		$acl->addOperate('pkg', '版本管理');
 	}
 
 	/**
@@ -61,8 +66,9 @@ class RestModule extends CmfModule {
 			$doc->pos         = 1;
 			$doc->icon        = '&#xe6bc;';
 			$doc->data['url'] = App::url('rest/doc');
+
 			if ($passport->cando('app:api')) {
-				$app       = $navi->getMenu('app', '接入验证');
+				$app       = $navi->getMenu('app', '应用管理');
 				$app->pos  = 2;
 				$app->icon = '&#xe63f;';
 				if ($cfg->getb('dev', false)) {
@@ -72,10 +78,27 @@ class RestModule extends CmfModule {
 				}
 				$app->data['url'] = App::url('rest/apps');
 			}
-			$cl              = $navi->getMenu('client', '客户端', 3);
-			$cl->data['url'] = App::url('rest/client');
-			$cl->icon        = '&#xe682;';
+			if ($passport->cando('cfg:api')) {
+				$cg              = $navi->getMenu('cfg', '云端控制', 3);
+				$cg->data['url'] = App::url('rest/cfg');
+				$cg->icon        = '&#xe648;';
+				$cg->iconStyle   = 'color:red';
+			}
+			if ($passport->cando('st:api')) {
+				$cl              = $navi->getMenu('client', '终端列表', 4);
+				$cl->data['url'] = App::url('rest/client');
+				$cl->icon        = '&#xe682;';
+			}
 		}
+	}
+
+	/**
+	 * @param \wulaphp\form\FormTable $form
+	 *
+	 * @bind rest\classes\form\AppCfgForm::onParseFields
+	 */
+	public static function cfgForm(FormTable $form) {
+		$form->addField('test', ['type' => 'string', 'var' => TextField::class, 'label' => '测试']);
 	}
 }
 
