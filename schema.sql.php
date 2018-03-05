@@ -10,7 +10,7 @@
 
 @defined('APPROOT') or header('Page Not Found', true, 404) || die();
 
-$tables ['1.0.0'] [] = "CREATE TABLE `{prefix}rest_app` (
+$tables ['1.0.0'] [] = "CREATE TABLE IF NOT EXISTS `{prefix}rest_app` (
     `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `create_time` INT UNSIGNED NOT NULL,
     `create_uid` INT UNSIGNED NOT NULL,
@@ -50,7 +50,7 @@ $tables['1.0.0'][] = "CREATE TABLE IF NOT EXISTS `{prefix}app_client_log` (
     UNIQUE INDEX `IDX_TIME` (`day` ASC, `device` ASC, `client_id` ASC, `uid` ASC)
 )  ENGINE=INNODB DEFAULT CHARACTER SET={encoding} COMMENT='活跃记录'";
 
-$tables['1.1.0'][] = "CREATE TABLE `{prefix}app_version` (
+$tables['1.1.0'][] = "CREATE TABLE IF NOT EXISTS  `{prefix}app_version` (
     `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     `create_uid` INT(11) UNSIGNED DEFAULT NULL,
     `update_uid` INT(11) UNSIGNED DEFAULT NULL,
@@ -69,7 +69,7 @@ $tables['1.1.0'][] = "CREATE TABLE `{prefix}app_version` (
     PRIMARY KEY (`id`)
 )  ENGINE=INNODB DEFAULT CHARSET={encoding} COMMENT='app版本控制'";
 
-$tables['1.1.0'][] = "CREATE TABLE `{prefix}app_cfg` (
+$tables['1.1.0'][] = "CREATE TABLE IF NOT EXISTS  `{prefix}app_cfg` (
     `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,  
     `pid` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '继承自配置',
     `name` VARCHAR(32) NOT NULL COMMENT '配置名称',
@@ -78,7 +78,7 @@ $tables['1.1.0'][] = "CREATE TABLE `{prefix}app_cfg` (
 )  ENGINE=INNODB DEFAULT CHARSET={encoding} COMMENT='app云控配置'";
 
 //添加渠道字段
-$tables['1.1.0'][] = "ALTER TABLE `{prefix}app_client ADD COLUMN `channel` VARCHAR(16) NULL COMMENT '渠道' AFTER `device`";
+$tables['1.1.0'][] = "ALTER TABLE `{prefix}app_client` ADD COLUMN `channel` VARCHAR(16) NULL COMMENT '渠道' AFTER `device`";
 //默认配置
 $tables['1.1.0'][] = "INSERT INTO `{prefix}app_cfg` (`id`,`pid`,`name`,`options`) VALUES (1,0,'默认配置',NULL)";
 //添加平台
