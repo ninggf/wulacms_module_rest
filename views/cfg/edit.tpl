@@ -1,5 +1,5 @@
 <section class="vbox wulaui">
-    <header class="header bg-light b-b clearfix">
+    <header class="header bg-light b-b clearfix lt">
         <p class="h4">{$cfgName}</p>
     </header>
     <section class="w-f scrollable">
@@ -10,8 +10,12 @@
             </form>
         </div>
     </section>
-    <footer class="footer bg-light b-t">
-        <button class="btn btn-sm btn-primary opt-save">保存</button>
-        <button class="btn btn-sm btn-warning opt-reset">重置</button>
+    <footer class="footer bg-light b-t lt">
+        <div class="row m-t-xs max-w-800">
+            <div class="col-md-offset-3 col-md-9">
+                <button class="btn btn-md btn-primary opt-save">保存</button>
+                <button class="btn btn-md btn-warning opt-reset">重置</button>
+            </div>
+        </div>
     </footer>
 </section>

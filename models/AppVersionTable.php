@@ -16,20 +16,16 @@ use wulaphp\db\Table;
 class AppVersionTable extends Table {
 
 	public function updateVersion($data, $id) {
-		if (isset($data['file']) && $data['file']) {
+		if (!$data['size'] && isset($data['file']) && $data['file']) {
 			$data['size'] = $this->getPkgSize($data['file']);
-		} else {
-			$data['size'] = 0;
 		}
 
 		return $this->update($data, $id);
 	}
 
 	public function newVersion($data) {
-		if (isset($data['file']) && $data['file']) {
+		if (!$data['size'] && isset($data['file']) && $data['file']) {
 			$data['size'] = $this->getPkgSize($data['file']);
-		} else {
-			$data['size'] = 0;
 		}
 
 		return $this->insert($data);

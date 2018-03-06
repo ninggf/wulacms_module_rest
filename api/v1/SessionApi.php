@@ -11,6 +11,7 @@
 namespace rest\api\v1;
 
 use rest\classes\API;
+use wulaphp\conf\ConfigurationLoader;
 use wulaphp\io\Session;
 
 /**
@@ -24,26 +25,35 @@ class SessionApi extends API {
 	 *
 	 * @apiName 启动会话
 	 *
+	 * @paramo  string session 会话ID
+	 * @paramo  int expire 过期时间，单位秒
+	 *
 	 * @return array {
-	 *      "session":"string|会话ID",
-	 *      "expire":"int|会话多久后过期，单位秒"
+	 *      "session":"phadfadkewqea12ad",
+	 *      "expire":120
 	 * }
 	 */
 	public function start() {
 		$session          = new Session();
 		$sid              = $session->start();
 		$_SESSION['pang'] = 1;
+		$cfg              = ConfigurationLoader::loadFromFile('rest');
+		$expire           = $cfg->geti('expire', 300);
 
-		return ['session' => $sid, 'expire' => @ini_get('session.gc_maxlifetime')];
+		return ['session' => $sid, 'expire' => $expire];
 	}
 
 	/**
 	 * 检测会话是否过期.
+	 *
 	 * @apiName 过期检测
 	 *
 	 * @session
+	 *
+	 * @paramo  int pang 是否过期，1未过期；0过期
+	 *
 	 * @return array {
-	 *      "pang":"int|0过期，1未过期"
+	 *      "pang":1
 	 * }
 	 */
 	public function ping() {
@@ -58,8 +68,10 @@ class SessionApi extends API {
 	 * @apiName 销毁会话
 	 * @session
 	 *
+	 * @paramo  int status 始终为1
+	 *
 	 * @return array {
-	 *      "status":"int|始终为1"
+	 *      "status":1
 	 * }
 	 */
 	public function destroy() {

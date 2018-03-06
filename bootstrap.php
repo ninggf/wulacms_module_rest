@@ -3,12 +3,10 @@
 namespace rest;
 
 use backend\classes\DashboardUI;
-use backend\form\TextField;
 use wula\cms\CmfModule;
 use wulaphp\app\App;
 use wulaphp\auth\AclResourceManager;
 use wulaphp\conf\ConfigurationLoader;
-use wulaphp\form\FormTable;
 
 /**
  * Class RestModule
@@ -31,6 +29,7 @@ class RestModule extends CmfModule {
 	public function getVersionList() {
 		$v['1.0.0'] = '初始化RESTFul.';
 		$v['1.1.0'] = '添加';
+
 		return $v;
 	}
 
@@ -43,7 +42,7 @@ class RestModule extends CmfModule {
 		$acl = $manager->getResource('api', '应用接入', 'm');
 		$acl->addOperate('app', '应用管理');
 		$acl->addOperate('cfg', '云端控制');
-		$acl->addOperate('st', '终端列表');
+		$acl->addOperate('st', '终端统计');
 		$acl->addOperate('pkg', '版本管理');
 	}
 
@@ -85,20 +84,11 @@ class RestModule extends CmfModule {
 				$cg->iconStyle   = 'color:red';
 			}
 			if ($passport->cando('st:api')) {
-				$cl              = $navi->getMenu('client', '终端列表', 4);
-				$cl->data['url'] = App::url('rest/client');
+				$cl              = $navi->getMenu('stat', '终端统计', 4);
+				$cl->data['url'] = App::url('rest/stat');
 				$cl->icon        = '&#xe682;';
 			}
 		}
-	}
-
-	/**
-	 * @param \wulaphp\form\FormTable $form
-	 *
-	 * @bind rest\classes\form\AppCfgForm::onParseFields
-	 */
-	public static function cfgForm(FormTable $form) {
-		$form->addField('test', ['type' => 'string', 'var' => TextField::class, 'label' => '测试']);
 	}
 }
 

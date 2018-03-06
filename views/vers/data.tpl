@@ -29,7 +29,7 @@
             {$row.desc|escape|nl2br}
         </td>
         <td class="text-right">
-            <a href="{'rest/vers/edit'|app}/{$row.appkey}/{$row.id}" data-ajax="dialog" data-area="500px,auto"
+            <a href="{'rest/vers/edit'|app}/{$row.appkey}/{$row.id}" data-ajax="dialog" data-area="700px,auto"
                title="编辑:{$row.version}" class="edit-app">
                 <i class="fa fa-pencil-square-o text-primary"></i>
             </a>

@@ -108,8 +108,22 @@ class DocController extends IFramePageController {
 			$markdown         = implode("\n", $markdown);
 			$data['document'] = MarkdownExtra::defaultTransform($markdown);
 
+			$paramos = $ann->getMultiValues('paramo');
+			if ($paramos) {
+				$ps   = ['### 输出数据'];
+				$ps[] = '|名称|类型|描述|';
+				$ps[] = '|:---|:---:|:---|';
+				foreach ($paramos as $pb) {
+					if (preg_match('/^([^\s]+)\s+([^\s]+)(\s+.*)$/', $pb, $ms)) {
+						$ms[1] = ucfirst($ms[1]);
+						$nm    = preg_replace('#^\.+#', '&nbsp;&nbsp;&nbsp;', $ms[2]);
+						$ps[]  = "|{$nm}|{$ms[1]}|{$ms[3]}|";
+					}
+				}
+				$data['paramos'] = MarkdownExtra::defaultTransform(implode("\n", $ps));
+			}
 			//返回数据
-			$rtnData    = ['## 响应示例'];
+			$rtnData    = ['### 响应示例'];
 			$rtnData [] = '```json';
 			$rtn        = $ann->getString('return');
 			if (preg_match('/^(.+?)\s+(.+)$/', $rtn, $ms)) {
@@ -124,11 +138,11 @@ class DocController extends IFramePageController {
 			//错误代码
 			$errors = $ann->getMultiValues('error');
 			if ($errors) {
-				$rtnData [] = "\n## 异常示例\n";
+				$rtnData [] = "\n### 异常示例\n";
 				$rtnData [] = '```json';
 				$rtnData [] = json_encode(json_decode('{"error":{"code":405,"msg":"非法请求"}}', true), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 				$rtnData [] = '```';
-				$rtnData[]  = "\n### 异常代码";
+				$rtnData[]  = "\n#### 异常代码";
 				$rtnData[]  = '|代码|描述|';
 				$rtnData[]  = '|:---|:---|';
 				foreach ($errors as $error) {

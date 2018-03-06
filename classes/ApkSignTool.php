@@ -170,48 +170,4 @@ class ApkSignTool {
 
 		return $dest_apk_file;
 	}
-
-	/**
-	 * 生成渠道包.
-	 *
-	 * @param string|int $id
-	 * @param string     $channel
-	 *
-	 * @return array
-	 */
-	public static function generate($id, $channel = '') {
-		$apk = dbselect('AMK.market,AV.version,AV.apk_file,prefix,AV.os')->from('{app_version_market} AS AMK')->join('{app_version} AS AV', 'AMK.version_id = AV.id')->where(['AMK.id' => $id])->get(0);
-		if (empty ($apk)) {
-			return ['status' => false, 'msg' => '不存在该记录'];
-		}
-		$apk_file = WEB_ROOT . $apk ['apk_file'];
-		if (!file_exists($apk_file)) {
-			return ['status' => false, 'msg' => '包不存在！'];
-		}
-		$channel = $channel ? $channel : $apk ['market'];
-
-		$url      = cfg('apk_home@mobiapp', 'uploads') . DS . $apk ['prefix'] . '_' . $channel . '_' . $apk ['version'] . ($apk ['os'] == '2' ? '.ipa' : '.apk');
-		$file     = WEB_ROOT . $url;
-		$channels = ['channel' => $channel];
-		if ($apk ['os'] == '2') {
-			// IOS
-			$rst = ApkSignTool::repackIOS($apk_file, $file, $channels, $apk ['prefix']);
-		} else {
-			// 安卓
-			$rst = ApkSignTool::repack($apk_file, $file, $channels);
-		}
-		$host = cfg('host@mobiapp');
-		if (!$host) {
-			$host = untrailingslashit(cfg('site_url'));
-		}
-
-		$url = $host . '/' . str_replace('\\', '/', $url);
-		if ($rst) {
-			dbupdate('{app_version_market}')->set(['url' => $url])->where(['id' => $id])->exec();
-
-			return ['status' => true, 'msg' => '成功！', 'data' => $url];
-		} else {
-			return ['status' => false, 'msg' => '生成失败，查看日志！'];
-		}
-	}
 }

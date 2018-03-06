@@ -11,7 +11,9 @@
 namespace rest\api\v1;
 
 use rest\classes\API;
+use rest\models\AppCfgTable;
 use wulaphp\app\App;
+use wulaphp\cache\Cache;
 use wulaphp\io\Request;
 
 /**
@@ -31,6 +33,8 @@ class ClientApi extends API {
 	];
 
 	/**
+	 * 获取客户端惟一编号，客户端取到此编号后应妥善保管，尽量保存到安全地方以保证无论用户重新安装后此编号不变。
+	 *
 	 * @apiName 获取编号
 	 *
 	 * @param string $device  (required,sample=ios,android,h5,wxapp,wxgame,pc,web) 设备类型
@@ -38,12 +42,14 @@ class ClientApi extends API {
 	 * @param string $channel (sample=guanfang) 渠道
 	 * @param int    $uid     用户ID（如果用户登录）
 	 *
+	 * @paramo  string id 客户端编号
+	 *
 	 * @error   403=>错误的设备类型
 	 * @error   404=>版本号为空
 	 * @error   500=>内部错误
 	 *
 	 * @return array {
-	 *  "id":"string|客户端编号"
+	 *  "id":"adfasdfasdfadsfa"
 	 * }
 	 * @throws
 	 */
@@ -81,6 +87,8 @@ class ClientApi extends API {
 	}
 
 	/**
+	 * 端的活跃统计，客户端APP设计时应尽量保证每天至少要调用一次该接口。
+	 *
 	 * @apiName 日活统计
 	 *
 	 * @param string $id     (required) 客户端ID（通过rest.client.get接口获取的）
@@ -88,8 +96,10 @@ class ClientApi extends API {
 	 * @param string $ver    (required,sample=1.0.0) 版本
 	 * @param int    $uid    用户ID（如果用户登录）
 	 *
+	 * @paramo  int code 返回码，1成功；0失败.
+	 *
 	 * @return array {
-	 *  "code":"int|0 or 1"
+	 *  "code":1
 	 * }
 	 * @throws
 	 */
@@ -118,5 +128,100 @@ class ClientApi extends API {
 		}
 
 		return ['code' => 1];
+	}
+
+	/**
+	 * 通过此接口可以获取以下信息:
+	 *
+	 * 1. 云控配置信息，如果无云控配置信息则`cfg`为`null`。
+	 * 2. 新版本信息, 如果无可用新版本信息则`update`为`null`。
+	 *
+	 * __后端使用到的hook:__
+	 *
+	 * 1. `rest\onGetClientStatus($cfg)`通过此勾子添加全局配置
+	 * 2. `rest\canUpdate($rst,$channel,$uid)`通过此勾子实现灰度升级
+	 *
+	 * @apiName 状态检测
+	 *
+	 * @param int    $vercode (required,sample=10) 版本号
+	 * @param string $channel (sample=guanfang) 渠道
+	 * @param int    $uid     (sample=1000) 登录用户ID
+	 *
+	 * @error   500=> 无法连接数据库
+	 *
+	 * @paramo  object cfg 配置项，未加载到配置时为`null`
+	 * @paramo  mixed .`...` 具体配置项
+	 * @paramo  object update 升级信息，无升级信息时为`null`
+	 * @paramo  string .version 新版本名称
+	 * @paramo  string .desc 发行日志
+	 * @paramo  int .force 1强制升级;0不强制
+	 * @paramo  string .size 升级包大小
+	 * @paramo  string .url 软件包下载地址
+	 *
+	 * @return array {
+	 *  "cfg":{
+	 *      "cfg1":true,
+	 *      "cfg2":"你好啊"
+	 *  },
+	 *  "update":{
+	 *      "version":"v1.0.0",
+	 *      "desc":"修复了一些BUG",
+	 *      "force":1,
+	 *      "size":"2M",
+	 *      "url":"/rest/downlad/adsfasdf/adsf"
+	 *  }
+	 * }
+	 * @throws
+	 */
+	public function status($vercode, $channel = '', $uid = 0) {
+		try {
+			$vercode = intval($vercode);
+			$table   = new AppCfgTable();
+			$db      = $table->db();
+			$cache   = Cache::getCache();
+			//加载配置
+			$where['appkey']  = $this->appKey;
+			$where['vercode'] = $vercode;
+			$ckey             = 'client@' . $this->appKey . $vercode;
+			$cfg              = $cache->get($ckey);
+			if ($cfg === null) {
+				$rst = $db->select('cfgid')->from('{app_version}')->where($where)->desc('id')->limit(0, 1)->get();
+				if ($rst) {
+					$cfg = $table->loadConfig($rst['cfgid'] ? $rst['cfgid'] : 1);
+					$cfg = apply_filter('rest\onGetClientStatus', $cfg['options'] ? $cfg['options'] : []);
+				} else {
+					$cfg = [];
+				}
+				$cache->add($ckey, $cfg);
+			}
+			$data = [
+				'cfg'    => $cfg ? $cfg : null,
+				'update' => null
+			];
+
+			//升级检测
+			$uw  = [
+				'appkey'    => $this->appKey,
+				'vercode >' => $vercode
+			];
+			$sql = $db->select('version,desc,file,update_type,size')->from('{app_version}');
+			$pkg = $sql->where($uw)->desc('vercode')->limit(0, 1)->get();
+
+			if ($pkg && $pkg['file'] && apply_filter('rest\canUpdate', true, $pkg, $channel, $uid)) {
+				$data['update'] = [
+					'version' => $pkg['version'],
+					'desc'    => $pkg['desc'],
+					'force'   => $pkg['update_type'],
+					'size'    => readable_size($pkg['size']),
+					'url'     => App::url('rest/download/' . $this->appKey . ($channel ? '/' . $channel : ''))
+				];
+			}
+
+			return $data;
+		} catch (\Exception $e) {
+			$this->error(500, '内部错误');
+		}
+
+		return ['update' => null, 'cfg' => null];
 	}
 }

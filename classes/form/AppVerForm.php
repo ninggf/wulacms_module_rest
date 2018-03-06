@@ -68,9 +68,17 @@ class AppVerForm extends FormTable {
 	 * @var \backend\form\TextField
 	 * @type string
 	 * @callback (checkFile) => 请上传软件包文件
-	 * @layout 3,col-sm-8
+	 * @layout 3,col-sm-6
 	 */
 	public $file;
+	/**
+	 * 软件包大小
+	 * @var \backend\form\TextField
+	 * @type int
+	 * @digits
+	 * @layout 3,col-sm-2
+	 */
+	public $size;
 	/**
 	 * 发行说明
 	 * @var \backend\form\TextareaField
@@ -88,7 +96,7 @@ class AppVerForm extends FormTable {
 	public function checkFile($value, $data, $msg) {
 		$cfg   = ConfigurationLoader::loadFromFile('rest');
 		$store = $cfg->get('store', 'pkgs');
-		if (preg_match('#^(ht|f)tps?://.+$', $value)) {
+		if (preg_match('#^(ht|f)tps?://.+$#', $value)) {
 			return true;
 		}
 		if (is_file(WWWROOT . $store . DS . $value)) {

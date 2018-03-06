@@ -4,17 +4,17 @@
         <li class="m-l-lg active">
             <a href="#api-doc-tab" data-toggle="tab">接口文档</a>
         </li>
-        <li><a href="#api-doc-rst" data-toggle="tab">返回数据</a></li>
         <li><a href="#api-sandbox" data-toggle="tab">测试沙盒</a></li>
     </ul>
 </div>
 <div class="bg-white-only wulaui">
     <div class="tab-content">
         <div class="tab-pane active" id="api-doc-tab">
-            <div class="markdown-body">{$document}</div>
-        </div>
-        <div class="tab-pane" id="api-doc-rst">
-            <div class="markdown-body">{$return}</div>
+            <div class="markdown-body">
+                {$document}
+                {$paramos}
+                {$return}
+            </div>
         </div>
         <div class="tab-pane" id="api-sandbox">
             <div class="wrapper-lg max-w-800">

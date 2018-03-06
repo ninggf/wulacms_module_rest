@@ -3,7 +3,7 @@
         <div class="row m-t-sm">
             <div class="col-sm-12 m-b-xs">
                 <a href="{'rest/vers/edit'|app}/{$appkey}" class="btn btn-sm btn-success edit-app" data-ajax="dialog"
-                   data-area="500px,auto" data-title="新版本">
+                   data-area="700px,auto" data-title="新版本">
                     <i class="fa fa-plus"></i> 新版本
                 </a>
                 <a href="{'rest/vers/del'|app}" data-ajax data-grp="#table tbody input.grp:checked"

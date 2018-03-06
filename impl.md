@@ -72,10 +72,13 @@ RESTFul可以通过类或方法的`doc comment`中的注解自动生成API文档
 |apiName|方法|是|@apiName 开启会话|API名称|
 |session|方法|是|@session|API需要SESSION支持|
 |param|方法|否|@param string $name 姓名|参数定义，支持多种格式，详见下文|
+|paramo|方法|否|@paramo string abc 输出数据描述|输出数据定义，支持多种格式，详见下文|
 |error|方法|否|@error 200=>出错啦|定义此API可能出现的错误信息|
 |return|方法|是|@return array {"id":"用户ID"}|返回信息定义，必须是合法的JSON格式|
 
-__param注解格式：__
+> `return` 注解格式为`@return array {合法的返回值示例JSON}`
+
+__param输入参数注解格式：__
 
 1. `@param string $name` 只定义参数名与类型
 2. `@param string $name 姓名` 定义参数名，类型与描述
@@ -84,4 +87,8 @@ __param注解格式：__
 5. `@param object $info (required,sample={}) 信息` 参数名，类型，描述，必须且出给示例值
     * 当参数类型为`object`时，`sample`(示例值)必须提供.
 
-> `return` 注解格式为`@return array {合法的返回值示例JSON}`
+__paramo输出数据注解格式：__
+
+1. `@paramo string name` 只定义数据名与类型
+2. `@paramo string .key` 表示`key`是它一条数据的子项数据，用于Object类型的输出.
+

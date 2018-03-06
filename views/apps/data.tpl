@@ -29,7 +29,7 @@
                 <i class="fa fa-pencil-square-o text-primary"></i>
             </a>
             {if $pkgMng}
-                <a href="{'rest/vers'|app}/{$item.appkey}" data-tab="&#xe643;" title="软件包:{$item.name}">
+                <a href="{'rest/vers'|app}/{$item.appkey}" data-tab="&#xe643;" title="{$item.name}的软件包">
                     <i class="fa fa-list-ul"></i>
                 </a>
             {/if}
