@@ -6,6 +6,7 @@ use rest\classes\API;
 use rest\classes\LocalSecretChecker;
 use rest\classes\RestException;
 use rest\classes\RestFulClient;
+use rest\classes\UnauthorizedException;
 use wulaphp\app\App;
 use wulaphp\conf\ConfigurationLoader;
 use wulaphp\io\Request;
@@ -186,6 +187,8 @@ class IndexController extends Controller {
 						'msg'  => $re->getMessage()
 					]
 				]);
+			} catch (UnauthorizedException $un) {
+				Response::respond(401, 'Authorization Required');
 			} catch (\Exception $e) {
 				log_error('[' . $api . '] failed! ' . $e->getMessage() . "\n" . var_export($dparams, true), 'api');
 

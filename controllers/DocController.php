@@ -251,6 +251,9 @@ class DocController extends IFramePageController {
 							$rname            = lcfirst(preg_replace('/Api$/', '', $ref->getShortName()));
 							$children         = [];
 							foreach ($methods as $method) {
+								if ($method->isStatic()) {
+									continue;
+								}
 								$name = $method->getName();
 								$mna  = new Annotation($method);
 								if (preg_match('/^(__.+|setup|tearDown)$/', $name)) continue;

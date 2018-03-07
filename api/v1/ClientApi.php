@@ -224,4 +224,37 @@ class ClientApi extends API {
 
 		return ['update' => null, 'cfg' => null];
 	}
+
+	/**
+	 * 检测设备
+	 *
+	 * @param string $device
+	 *
+	 * @return bool
+	 */
+	public static function checkDevice($device) {
+		return isset(self::device[ $device ]);
+	}
+
+	/**
+	 * 客户端是否有效.
+	 *
+	 * @param string $cid
+	 *
+	 * @return bool
+	 */
+	public static function checkClient($cid) {
+		if (empty($cid)) {
+			return false;
+		}
+		try {
+			$db = App::db();
+
+			return $db->select('id')->from('{app_client}')->where(['id' => $cid])->exist('id');
+		} catch (\Exception $e) {
+
+		}
+
+		return false;
+	}
 }

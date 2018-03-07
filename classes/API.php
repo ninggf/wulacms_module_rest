@@ -9,7 +9,11 @@
  */
 
 namespace rest\classes;
-
+/**
+ * 接口基类.
+ *
+ * @package rest\classes
+ */
 abstract class API {
 	public    $sessionId = '';
 	protected $appKey;
@@ -20,6 +24,10 @@ abstract class API {
 		$this->ver    = $ver;
 	}
 
+	/**
+	 * @throws \rest\classes\RestException
+	 * @throws \rest\classes\UnauthorizedException
+	 */
 	public function setup() {
 
 	}
@@ -31,12 +39,33 @@ abstract class API {
 	/**
 	 * 返回错误信息.
 	 *
-	 * @param int    $code
-	 * @param string $message
+	 * @param int|string  $code
+	 * @param string|null $message
 	 *
 	 * @throws \rest\classes\RestException
 	 */
-	protected function error($code, $message) {
+	protected final function error($code, $message = null) {
+		if (empty($message) && is_string($code)) {
+			$msg = explode('@', $code);
+			if (count($msg) >= 2) {
+				$message = $msg[1];
+				$code    = intval($msg[0]);
+			} else {
+				$message = $code;
+				$code    = 500;
+			}
+		} else if (empty($message)) {
+			$message = '内部错误';
+		}
 		throw new RestException($message, $code);
+	}
+
+	/**
+	 * 未登录异常.
+	 *
+	 * @throws \rest\classes\UnauthorizedException
+	 */
+	protected function unauthorized() {
+		throw new UnauthorizedException();
 	}
 }
