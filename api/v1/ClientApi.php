@@ -180,15 +180,15 @@ class ClientApi extends API {
 			$db      = $table->db();
 			$cache   = Cache::getCache();
 			//加载配置
-			$where['appkey']  = $this->appKey;
-			$where['vercode'] = $vercode;
-			$ckey             = 'client@' . $this->appKey . $vercode;
-			$cfg              = $cache->get($ckey);
+			$where['AV.appkey'] = $this->appKey;
+			$where['vercode']   = $vercode;
+			$ckey               = 'client@' . $this->appKey . $vercode;
+			$cfg                = $cache->get($ckey);
 			if ($cfg === null) {
-				$rst = $db->select('cfgid')->from('{app_version}')->where($where)->desc('id')->limit(0, 1)->get();
+				$rst = $db->select('cfgid,platform')->from('{app_version} AS AV')->join('{rest_app} AS RA', 'AV.appkey = RA.appkey')->where($where)->desc('AV.id')->limit(0, 1)->get();
 				if ($rst) {
 					$cfg = $table->loadConfig($rst['cfgid'] ? $rst['cfgid'] : 1);
-					$cfg = apply_filter('rest\onGetClientStatus', $cfg['options'] ? $cfg['options'] : []);
+					$cfg = apply_filter('rest\onGetClientStatus', $cfg['options'] ? $cfg['options'] : [], $rst['platform']);
 				} else {
 					$cfg = [];
 				}
