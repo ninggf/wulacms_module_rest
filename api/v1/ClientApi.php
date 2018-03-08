@@ -10,6 +10,7 @@
 
 namespace rest\api\v1;
 
+use passport\classes\model\OauthSessionTable;
 use rest\classes\API;
 use rest\models\AppCfgTable;
 use wulaphp\app\App;
@@ -145,7 +146,7 @@ class ClientApi extends API {
 	 *
 	 * @param int    $vercode (required,sample=10) 版本号
 	 * @param string $channel (sample=guanfang) 渠道
-	 * @param int    $uid     (sample=1000) 登录用户ID
+	 * @param string $token   登录TOKEN
 	 *
 	 * @error   500=> 无法连接数据库
 	 *
@@ -173,7 +174,7 @@ class ClientApi extends API {
 	 * }
 	 * @throws
 	 */
-	public function status($vercode, $channel = '', $uid = 0) {
+	public function status($vercode, $channel = '', $token = '') {
 		try {
 			$vercode = intval($vercode);
 			$table   = new AppCfgTable();
@@ -182,38 +183,49 @@ class ClientApi extends API {
 			//加载配置
 			$where['AV.appkey'] = $this->appKey;
 			$where['vercode']   = $vercode;
-			$ckey               = 'client@' . $this->appKey . $vercode;
+			$ckey               = 'client@' . md5($this->appKey . $vercode . $token . $channel);
 			$cfg                = $cache->get($ckey);
+			$device             = '';
+			$info               = false;
 			if ($cfg === null) {
 				$rst = $db->select('cfgid,platform')->from('{app_version} AS AV')->join('{rest_app} AS RA', 'AV.appkey = RA.appkey')->where($where)->desc('AV.id')->limit(0, 1)->get();
 				if ($rst) {
-					$cfg = $table->loadConfig($rst['cfgid'] ? $rst['cfgid'] : 1);
-					$cfg = apply_filter('rest\onGetClientStatus', $cfg['options'] ? $cfg['options'] : [], $rst['platform']);
+					$cfg    = $table->loadConfig($rst['cfgid'] ? $rst['cfgid'] : 1);
+					$cfg    = $cfg['options'] ? $cfg['options'] : [];
+					$device = $rst['platform'];
 				} else {
 					$cfg = [];
 				}
-				$cache->add($ckey, $cfg);
 			}
+			if ($token) {
+				$info = (new OauthSessionTable())->getInfo($token);
+			}
+
+			$cfg = apply_filter('rest\onGetClientStatus', $cfg, $device, $channel, $info);
+			$cache->add($ckey, $cfg, 300);
+
 			$data = [
 				'cfg'    => $cfg ? $cfg : null,
 				'update' => null
 			];
 
 			//升级检测
-			$uw  = [
+			$uw = [
 				'appkey'    => $this->appKey,
 				'vercode >' => $vercode
 			];
+
 			$sql = $db->select('version,desc,file,update_type,size')->from('{app_version}');
 			$pkg = $sql->where($uw)->desc('vercode')->limit(0, 1)->get();
 
-			if ($pkg && $pkg['file'] && apply_filter('rest\canUpdate', true, $pkg, $channel, $uid)) {
+			if ($pkg && $pkg['file'] && apply_filter('rest\canUpdate', true, $pkg, $device, $channel, $info)) {
+				$url            = preg_match('#^(ht|f)tps?://.+$#i', $pkg['file']) ? $pkg['file'] : App::url('rest/download/' . $this->appKey . ($channel ? '/' . $channel : ''));
 				$data['update'] = [
 					'version' => $pkg['version'],
 					'desc'    => $pkg['desc'],
 					'force'   => $pkg['update_type'],
 					'size'    => readable_size($pkg['size']),
-					'url'     => App::url('rest/download/' . $this->appKey . ($channel ? '/' . $channel : ''))
+					'url'     => $url
 				];
 			}
 
