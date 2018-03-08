@@ -19,22 +19,31 @@ abstract class API {
 	protected $appKey;
 	protected $ver;
 
-	public function __construct($appKey, $ver) {
+	/**
+	 * API constructor.
+	 *
+	 * @param string $appKey appkey
+	 * @param string $ver    版本.
+	 */
+	public function __construct($appKey, $ver = '') {
 		$this->appKey = $appKey;
 		$this->ver    = $ver;
 	}
 
 	/**
+	 * 启动设置.
+	 *
 	 * @throws \rest\classes\RestException
 	 * @throws \rest\classes\UnauthorizedException
 	 * @throws \rest\classes\HttpException
 	 */
 	public function setup() {
-
 	}
 
+	/**
+	 * 销毁.
+	 */
 	public function tearDown() {
-
 	}
 
 	/**
@@ -66,7 +75,7 @@ abstract class API {
 	 *
 	 * @throws \rest\classes\UnauthorizedException
 	 */
-	protected function unauthorized() {
+	protected final function unauthorized() {
 		throw new UnauthorizedException();
 	}
 }
