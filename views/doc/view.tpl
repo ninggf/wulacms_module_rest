@@ -22,7 +22,7 @@
                       data-validate="{$rule|escape}" data-ajax>
                     <input type="hidden" name="v" value="{$version}"/>
                     <input type="hidden" name="api" value="{$api}"/>
-                    <input type="hidden" name="_mehtod" value="{$method}"/>
+                    <input type="hidden" name="_method" value="{$method}"/>
                     <input type="hidden" name="_params" value="{$params}"/>
                     {$form|render}
                     <div class="form-group">

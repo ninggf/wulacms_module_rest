@@ -181,31 +181,78 @@ class RestFulClient {
 	 * @return array 结果.
 	 */
 	public function getReturn($rst = null) {
+		$statusCode = 200;
 		if ($rst === null) {
 			$rst = curl_exec($this->curl);
 			if ($rst === false) {
 				log_warn(curl_error($this->curl), 'rest.err');
 			}
+			$statusCode = curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
 			curl_close($this->curl);
 			$this->curl = null;
 		}
-		if (empty ($rst)) {
-			return ['response' => ['error' => ['code' => 106, 'msg' => __('Internal error.')]]];
-		} else {
+		if ($statusCode == 200) {
 			$json = @json_decode($rst, true);
-			if ($json) {
-				return $json;
-			} else {
-				return [
-					'response' => [
-						'error' => [
-							'code'         => 107,
-							'msg'          => __('Not supported response format.'),
-							'responseText' => $rst
-						]
-					]
-				];
+		} else {
+			$json = false;
+		}
+		if ($json) {
+			return $json;
+		} else {
+			$rtn = ['response' => ['error' => []]];
+			switch ($statusCode) {
+				case 200:
+					$rtn['response']['error']['code'] = 500;
+					$rtn['response']['error']['msg']  = '解析出错';
+					$rtn['response']['error']['body'] = $rst;
+					break;
+				case 400:
+					$rtn['response']['error']['http_code'] = 400;
+					$rtn['response']['error']['msg']       = '错误请求，缺少api参数';
+					break;
+				case 401:
+					$rtn['response']['error']['http_code'] = 401;
+					$rtn['response']['error']['msg']       = '需要登录';
+					break;
+				case 403:
+					$rtn['response']['error']['http_code'] = 403;
+					$rtn['response']['error']['msg']       = '禁止访问';
+					break;
+				case 404:
+					$rtn['response']['error']['http_code'] = 404;
+					$rtn['response']['error']['msg']       = 'API不存在';
+					break;
+				case 405:
+					$rtn['response']['error']['http_code'] = 405;
+					$rtn['response']['error']['msg']       = '错误的请求方法';
+					break;
+				case 406:
+					$rtn['response']['error']['http_code'] = 406;
+					$rtn['response']['error']['msg']       = '非法请求';
+					break;
+				case 416:
+					$rtn['response']['error']['http_code'] = 416;
+					$rtn['response']['error']['msg']       = '错误的API格式';
+					break;
+				case 501:
+					$rtn['response']['error']['http_code'] = 501;
+					$rtn['response']['error']['msg']       = '未实现的API';
+					break;
+				case 502:
+					$rtn['response']['error']['http_code'] = 502;
+					$rtn['response']['error']['msg']       = '网关出错';
+					break;
+				case 503:
+					$rtn['response']['error']['http_code'] = 503;
+					$rtn['response']['error']['msg']       = $rst;
+					break;
+				case 500:
+				default:
+					$rtn['response']['error']['http_code'] = 500;
+					$rtn['response']['error']['msg']       = '服务器运行出错';
 			}
+
+			return $rtn;
 		}
 	}
 

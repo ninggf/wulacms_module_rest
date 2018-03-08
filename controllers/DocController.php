@@ -18,6 +18,7 @@ use rest\classes\RestFulClient;
 use rest\classes\SandboxForm;
 use wulaphp\app\App;
 use wulaphp\io\Ajax;
+use wulaphp\io\Response;
 use wulaphp\util\Annotation;
 
 /**
@@ -155,10 +156,10 @@ class DocController extends IFramePageController {
 			$form            = $this->createSandboxForm($inputs);
 
 			$form->inflateByData([
-				'api_host'   => sess_get('rest.host'),
-				'app_key'    => sess_get('rest.appkey'),
-				'app_secret' => sess_get('rest.appsecret'),
-				'session'    => sess_get('rest.session')
+				'api_host'   => $_COOKIE['rest_host'],// sess_get('rest.host'),
+				'app_key'    => $_COOKIE['rest_appkey'],// sess_get('rest.appkey'),
+				'app_secret' => $_COOKIE['rest_appsecret'],//sess_get('rest.appsecret'),
+				'session'    => $_COOKIE['rest_session']//sess_get('rest.session')
 			]);
 
 			$data['form']   = BootstrapFormRender::h($form, [
@@ -175,28 +176,27 @@ class DocController extends IFramePageController {
 	}
 
 	public function test() {
-		$ver                        = rqst('v');
-		$api                        = rqst('api');
-		$method                     = rqst('_method');
-		$params                     = rqst('_params');
-		$url                        = rqst('api_host');
-		$app_key                    = rqst('app_key');
-		$app_secret                 = rqst('app_secret');
-		$session                    = rqst('session');
-		$_SESSION['rest.host']      = $url;
-		$_SESSION['rest.appkey']    = $app_key;
-		$_SESSION['rest.appsecret'] = $app_secret;
+		$ver        = rqst('v');
+		$api        = rqst('api');
+		$method     = rqst('_method');
+		$params     = rqst('_params');
+		$url        = rqst('api_host');
+		$app_key    = rqst('app_key');
+		$app_secret = rqst('app_secret');
+		$session    = rqst('session');
+		Response::cookie('rest_host', $url, 315360000);
+		Response::cookie('rest_appkey', $app_key, 315360000);
+		Response::cookie('rest_appsecret', $app_secret, 315360000);
 		if ($params) {
 			$params = explode(',', $params);
 			$data   = rqsts($params);
 		}
-
 		$data['sign_method'] = 'hmac';
 		$data['format']      = 'json';
 		$data['timestamp']   = gmdate('Y-m-d H:i:s') . ' GMT';
 		if ($session) {
-			$data['session']          = $session;
-			$_SESSION['rest.session'] = $session;
+			$data['session'] = $session;
+			Response::cookie('rest_session', $session, 315360000);
 		}
 		$rest = new RestFulClient($url, $app_key, $app_secret, $ver, 30);
 		if ($method == 'post') {

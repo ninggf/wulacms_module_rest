@@ -103,14 +103,19 @@ class IndexController extends Controller {
 			$ann      = new \ReflectionObject($clz);
 			$rqMethod = strtolower($_SERVER ['REQUEST_METHOD']);
 			$rm       = ucfirst($rqMethod);
-			if ($rm == 'Post') {
-				$m = $ann->getMethod($apis[2] . 'Post');
-			} else {
-				$m = $ann->getMethod($apis[2]);
+			try {
+				if ($rm == 'Post') {
+					$m = $ann->getMethod($apis[2] . 'Post');
+				} else {
+					$m = $ann->getMethod($apis[2]);
+				}
+			} catch (\Exception $mre) {
+				$m = false;
 			}
 			if (!$m) {
 				$this->httpout(405, '不支持的请求方法');
 			}
+
 			$params  = [];//请求参数用于签名
 			$dparams = [];//调用参数
 			$ps      = $m->getParameters();
@@ -205,6 +210,10 @@ class IndexController extends Controller {
 		$this->httpout(501);
 
 		return null;
+	}
+
+	public function indexPost() {
+		return $this->index();
 	}
 
 	/**
