@@ -27,6 +27,7 @@ abstract class API {
 	/**
 	 * @throws \rest\classes\RestException
 	 * @throws \rest\classes\UnauthorizedException
+	 * @throws \rest\classes\HttpException
 	 */
 	public function setup() {
 

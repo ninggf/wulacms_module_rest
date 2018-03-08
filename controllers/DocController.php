@@ -140,7 +140,7 @@ class DocController extends IFramePageController {
 			if ($errors) {
 				$rtnData [] = "\n### 异常示例\n";
 				$rtnData [] = '```json';
-				$rtnData [] = json_encode(json_decode('{"error":{"code":405,"msg":"非法请求"}}', true), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+				$rtnData [] = json_encode(json_decode('{"response":{"error":{"code":405,"msg":"非法请求"}}}', true), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 				$rtnData [] = '```';
 				$rtnData[]  = "\n#### 异常代码";
 				$rtnData[]  = '|代码|描述|';

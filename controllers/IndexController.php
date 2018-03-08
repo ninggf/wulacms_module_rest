@@ -3,6 +3,7 @@
 namespace rest\controllers;
 
 use rest\classes\API;
+use rest\classes\HttpException;
 use rest\classes\LocalSecretChecker;
 use rest\classes\RestException;
 use rest\classes\RestFulClient;
@@ -10,7 +11,6 @@ use rest\classes\UnauthorizedException;
 use wulaphp\app\App;
 use wulaphp\conf\ConfigurationLoader;
 use wulaphp\io\Request;
-use wulaphp\io\Response;
 use wulaphp\io\Session;
 use wulaphp\mvc\controller\Controller;
 use wulaphp\mvc\view\JsonView;
@@ -31,7 +31,7 @@ class IndexController extends Controller {
 		$this->cfg = ConfigurationLoader::loadFromFile('rest');
 		$domain    = $this->cfg->get('domain');
 		if ($domain && $_SERVER['HTTP_HOST'] != $domain) {
-			Response::respond(403);
+			$this->httpout(403);
 		}
 		$this->format = rqst('format', 'json');
 		if (!$this->format) {
@@ -45,7 +45,8 @@ class IndexController extends Controller {
 	 * 默认控制方法.
 	 *
 	 *
-	 * @return string
+	 * @return string|mixed
+	 * @throws
 	 */
 	public function index() {
 		$format = $this->format;
@@ -54,11 +55,11 @@ class IndexController extends Controller {
 			$ips = trim(App::cfg('allowedIp'));
 			$msg = App::cfg('offlineMsg', 'Service Unavailable');
 			if (empty($ips)) {
-				return $this->generateResult($format, ['error' => ['code' => 503, 'msg' => $msg]], false);
+				$this->httpout(503, $msg);
 			}
 			$ips = explode("\n", $ips);
 			if (!in_array(Request::getIp(), $ips)) {
-				return $this->generateResult($format, ['error' => ['code' => 503, 'msg' => $msg]], false);
+				$this->httpout(503, $msg);
 			}
 		}
 		fire('rest\startCall', time(), $format);
@@ -73,13 +74,13 @@ class IndexController extends Controller {
 		}
 		$ctime = time();
 		if (($rtime + 300) < $ctime || $rtime - 300 > $ctime) {
-			return $this->generateResult($format, ['error' => ['code' => 406, 'msg' => '非法请求']]);
+			$this->httpout(406);//非法请求
 		}
 		//时间检测结束
 		$v   = irqst('v', 1);
 		$api = rqst('api');//API
 		if (empty($api)) {
-			return $this->generateResult($format, ['error' => ['code' => 10, 'msg' => '缺少api参数']]);
+			$this->httpout(400);
 		}
 		$app_key = rqst('app_key');//APPKEY
 		if (empty($app_key)) {
@@ -87,12 +88,12 @@ class IndexController extends Controller {
 		}
 		$apis = explode('.', $api);
 		if (count($apis) != 3) {
-			return $this->generateResult($format, ['error' => ['code' => 11, 'msg' => 'API不存在']]);
+			$this->httpout(416, 'API格式不正确');
 		}
 		$namesapce = $apis[0];
 		$module    = App::getModuleById($namesapce);
 		if (!$module) {
-			return $this->generateResult($format, ['error' => ['code' => 12, 'msg' => 'API不存在']]);
+			$this->httpout(404);
 		}
 		$cls = ucfirst($apis[1]) . 'Api';
 		$cls = $namesapce . '\\api\\v' . $v . '\\' . $cls;
@@ -108,7 +109,7 @@ class IndexController extends Controller {
 				$m = $ann->getMethod($apis[2]);
 			}
 			if (!$m) {
-				return $this->generateResult($format, ['error' => ['code' => 14, 'msg' => 'API不存在']]);
+				$this->httpout(405, '不支持的请求方法');
 			}
 			$params  = [];//请求参数用于签名
 			$dparams = [];//调用参数
@@ -187,19 +188,23 @@ class IndexController extends Controller {
 						'msg'  => $re->getMessage()
 					]
 				]);
+			} catch (HttpException $he) {
+				$this->httpout($he->getCode(), $he->getMessage());
 			} catch (UnauthorizedException $un) {
-				Response::respond(401, 'Authorization Required');
+				$this->httpout(401);
 			} catch (\Exception $e) {
 				log_error('[' . $api . '] failed! ' . $e->getMessage() . "\n" . var_export($dparams, true), 'api');
 
-				return $this->generateResult($format, ['error' => ['code' => 500, 'msg' => '内部错误']]);
+				return $this->generateResult($format, ['error' => ['code' => 20, 'msg' => $e->getMessage()]]);
 			} finally {
 				$clz->tearDown();
 				fire('rest\endApi', $api, time(), $args);
 			}
 		}
 
-		return $this->generateResult($format, ['error' => ['code' => 13, 'msg' => 'API不存在']]);
+		$this->httpout(501);
+
+		return null;
 	}
 
 	/**
@@ -227,5 +232,19 @@ class IndexController extends Controller {
 		} else {
 			return new XmlView($data, 'response');
 		}
+	}
+
+	/**
+	 * 输出http响应输出。
+	 *
+	 * @param string|int $status 状态
+	 * @param string     $message
+	 */
+	private function httpout($status, $message = '') {
+		status_header($status);
+		if ($message) {
+			echo $message;
+		}
+		exit();
 	}
 }
