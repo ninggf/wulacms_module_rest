@@ -151,7 +151,12 @@ class ClientApi extends API {
 	 * @error   500=> 无法连接数据库
 	 *
 	 * @paramo  object cfg 配置项，未加载到配置时为`null`
-	 * @paramo  mixed .`...` 具体配置项
+	 * @paramo  bool  .neeRecCode 是否需要推荐码才能注册
+	 * @paramo  bool .codeLogin 是否可能使用手机验证码登录
+	 * @paramo  bool .updataMeta 是否允许修改用户信息
+	 * @paramo  bool .allowReg 是否允许注册
+	 * @paramo  array .oauth 可用的第三方登录
+	 * @paramo  mixed .`...` 其它具体配置项
 	 * @paramo  object update 升级信息，无升级信息时为`null`
 	 * @paramo  string .version 新版本名称
 	 * @paramo  string .desc 发行日志
