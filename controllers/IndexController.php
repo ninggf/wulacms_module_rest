@@ -66,7 +66,7 @@ class IndexController extends Controller {
 		$rtime     = 0;
 		$timestamp = rqst('timestamp');
 		//时间检测，时差正负5分钟
-		if ($timestamp && preg_match('/^20\d\d-(1[0-2]|0[1-9])-([0-2][1-9]|3[01])\s([01][0-9]|2[0-3]):([0-5]\d):([0-5]\d)(\sGMT)?$/', $timestamp)) {
+		if ($timestamp && preg_match('/^20\d\d-(1[0-2]|0[1-9])-(0[1-9]|[12]\d|3[01])\s([01][0-9]|2[0-3]):([0-5]\d):([0-5]\d)(\sGMT)?$/', $timestamp)) {
 			$timestampx = @strtotime($timestamp);
 			if ($timestampx !== false) {
 				$rtime = $timestampx;
