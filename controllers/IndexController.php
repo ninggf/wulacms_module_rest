@@ -126,6 +126,8 @@ class IndexController extends Controller {
 					$dparams[ $name ] = $params[ $name ] = rqst($name);
 				} else if ($p->isOptional()) {
 					$dparams[ $name ] = $p->getDefaultValue();
+				} else if (isset($_FILES[ $name ])) {
+					$dparams[ $name ] = $_FILES[ $name ];
 				} else {
 					return $this->generateResult($format, ['error' => ['code' => 15, 'msg' => '缺少' . $name . '参数']]);
 				}
@@ -197,6 +199,8 @@ class IndexController extends Controller {
 				$this->httpout($he->getCode(), $he->getMessage());
 			} catch (UnauthorizedException $un) {
 				$this->httpout(401);
+			} catch (\PDOException $pe) {
+				return $this->generateResult($format, ['error' => ['code' => 1026, 'msg' => '内部错误(数据库)']]);
 			} catch (\Exception $e) {
 				log_error('[' . $api . '] failed! ' . $e->getMessage() . "\n" . var_export($dparams, true), 'api');
 
