@@ -205,7 +205,11 @@ class DocController extends IFramePageController {
 			$rest->get($api, $data);
 		}
 		$rst = $rest->getReturn();
-		$rst = '<pre><code class="json">' . json_encode($rst, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . '</code></pre>';
+		if ($rest->code == 500) {
+			$rst = '<iframe srcdoc="' . html_escape($rest->content) . '" style="width:100%;height:400px;border:1px solid #ddd;"></iframe>';
+		} else {
+			$rst = '<pre><code class="json">' . json_encode($rst, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . '</code></pre>';
+		}
 
 		return Ajax::update('#api-test-result', $rst, '数据已经提交');
 	}

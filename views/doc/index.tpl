@@ -20,7 +20,7 @@
 			$('#rest-app-doc-dic').on('ztree.init', function (e) {
 				var docWrapper = $('#rest-app-doc'), settings = {
 					view    : {
-						showLine: !0,
+						showLine: !0
 					},
 					data    : {
 						keep: {

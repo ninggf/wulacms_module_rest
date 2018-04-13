@@ -11,6 +11,8 @@ class RestFulClient {
 	private $timeout = 15;
 	private $cookies = [];
 	private $headers = [];
+	public  $content;
+	public  $code    = 200;
 
 	/**
 	 * 构建一个RESTful Client 实例.
@@ -183,13 +185,15 @@ class RestFulClient {
 	public function getReturn($rst = null) {
 		$statusCode = 200;
 		if ($rst === null) {
-			$rst = curl_exec($this->curl);
+			$this->content = $rst = curl_exec($this->curl);
 			if ($rst === false) {
 				log_warn(curl_error($this->curl), 'rest.err');
 			}
-			$statusCode = curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
+			$this->code = $statusCode = curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
 			curl_close($this->curl);
 			$this->curl = null;
+		} else {
+			$this->content = $rst;
 		}
 		if ($statusCode == 200) {
 			$json = @json_decode($rst, true);
