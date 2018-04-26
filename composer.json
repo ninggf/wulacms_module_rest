@@ -4,8 +4,7 @@
   "type": "wula-module",
   "require": {
 	"wula/wula-installer": "^1.0",
-	"wulacms/dashboard": "*",
-	"wula/curlient": "*"
+	"wula/curlient": "^1.0.0"
   },
   "license": "MIT",
   "authors": [
