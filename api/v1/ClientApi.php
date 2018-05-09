@@ -55,7 +55,7 @@ class ClientApi extends API {
 	 * @throws
 	 */
 	public function get($device, $ver, $channel = '', $uid = 0) {
-		if (!isset(self::device[ $device ])) {
+		if (!self::checkDevice($device)) {
 			$this->error('403', '错误的设备类型');
 		}
 		if (empty($ver)) {
@@ -105,7 +105,7 @@ class ClientApi extends API {
 	 * @throws
 	 */
 	public function log($id, $device, $ver, $uid = 0) {
-		if (!isset(self::device[ $device ])) {
+		if (!self::checkDevice($device)) {
 			$this->error('403', '错误的设备类型');
 		}
 		if (empty($ver)) {
@@ -250,7 +250,7 @@ class ClientApi extends API {
 	 * @return bool
 	 */
 	public static function checkDevice($device) {
-		return isset(self::device[ $device ]);
+		return array_key_exists($device, self::device);
 	}
 
 	/**
