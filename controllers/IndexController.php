@@ -10,7 +10,6 @@ use rest\classes\RestFulClient;
 use rest\classes\UnauthorizedException;
 use wulaphp\app\App;
 use wulaphp\conf\ConfigurationLoader;
-use wulaphp\io\Request;
 use wulaphp\io\Session;
 use wulaphp\mvc\controller\Controller;
 use wulaphp\mvc\view\JsonView;
@@ -50,18 +49,6 @@ class IndexController extends Controller {
 	 */
 	public function index() {
 		$format = $this->format;
-		//离线检测
-		if (App::bcfg('offline')) {
-			$ips = trim(App::cfg('allowedIp'));
-			$msg = App::cfg('offlineMsg', 'Service Unavailable');
-			if (empty($ips)) {
-				$this->httpout(503, $msg);
-			}
-			$ips = explode("\n", $ips);
-			if (!in_array(Request::getIp(), $ips)) {
-				$this->httpout(503, $msg);
-			}
-		}
 		fire('rest\startCall', time(), $format);
 		$rtime     = 0;
 		$timestamp = rqst('timestamp');
