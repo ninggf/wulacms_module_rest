@@ -26,7 +26,9 @@ class ClientApi extends API {
 	const device = [
 		'web'     => '网站',
 		'ios'     => '苹果',
+		'ipad'    => 'iPad',
 		'android' => '安卓',
+		'pad'     => '安卓平板',
 		'wxapp'   => '小程序',
 		'wxgame'  => '小游戏',
 		'h5'      => 'H5',

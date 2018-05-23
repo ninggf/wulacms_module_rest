@@ -79,6 +79,16 @@ class VersController extends IFramePageController {
 		}
 	}
 
+	public function del($ids) {
+		$ids = safe_ids2($ids);
+		if ($ids) {
+			$table = new AppVersionTable();
+			$table->deleteVers($ids);
+		}
+
+		return Ajax::reload('#table', '所选版本已删除');
+	}
+
 	public function data($appkey, $count) {
 		$table = new AppVersionTable();
 		$sql   = $table->alias('AV')->select('AV.*,RA.platform,AC.name AS cfgName');

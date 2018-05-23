@@ -31,6 +31,14 @@ class AppVersionTable extends Table {
 		return $this->insert($data);
 	}
 
+	public function deleteVers($ids) {
+		if ($ids) {
+			return $this->delete(['id IN' => (array)$ids]);
+		}
+
+		return false;
+	}
+
 	private function getPkgSize($file) {
 		$cfg   = ConfigurationLoader::loadFromFile('rest');
 		$store = $cfg->get('store', 'pkgs');
