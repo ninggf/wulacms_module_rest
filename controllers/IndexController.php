@@ -150,7 +150,7 @@ class IndexController extends Controller {
 			$dev = $this->cfg->getb('dev', false);
 			if (!$dev) {
 				//验签
-				$sign1 = RestFulClient::chucksum($args, $appSecret);
+				$sign1 = RestFulClient::chucksum($args, $appSecret, 'sha1', true);
 				if ($sign !== $sign1) {
 					return $this->generateResult($format, [
 						'error' => [
@@ -205,6 +205,19 @@ class IndexController extends Controller {
 
 	public function indexPost() {
 		return $this->index();
+	}
+
+	/**
+	 * jsonp 请求.
+	 *
+	 * @param string $callback jsonp回调
+	 */
+	public function jsonp($callback) {
+		$info = $this->index();
+		$info = $callback . '(' . json_encode($info) . ')';
+		@header('Content-type: application/javascript; charset=UTF-8');
+		echo $info;
+		exit();
 	}
 
 	/**

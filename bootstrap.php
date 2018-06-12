@@ -28,7 +28,8 @@ class RestModule extends CmfModule {
 
 	public function getVersionList() {
 		$v['1.0.0'] = '初始化RESTFul.';
-		$v['1.1.0'] = '添加';
+		$v['1.1.0'] = '添加版本配置功能';
+		$v['1.1.1'] = '添加预览发布功能';
 
 		return $v;
 	}

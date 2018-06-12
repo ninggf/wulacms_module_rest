@@ -34,11 +34,11 @@ class SessionApi extends API {
 	 * }
 	 */
 	public function start() {
-		$session          = new Session();
-		$sid              = $session->start();
-		$_SESSION['pang'] = 1;
 		$cfg              = ConfigurationLoader::loadFromFile('rest');
 		$expire           = $cfg->geti('expire', 300);
+		$session          = new Session($expire);
+		$sid              = $session->start($this->sessionId);
+		$_SESSION['pang'] = 1;
 
 		return ['session' => $sid, 'expire' => $expire];
 	}

@@ -301,15 +301,14 @@ class RestFulClient {
 	/**
 	 * 计算请求的CHECKSUM值.
 	 *
-	 * @param array  $args
-	 *            参数.
-	 * @param string $appSecret
-	 *            app secret.
-	 * @param string $type
+	 * @param array  $args      参数.
+	 * @param string $appSecret app secret.
+	 * @param string $type      验签方法
+	 * @param bool   $server    是否是server端验证
 	 *
 	 * @return string CHECKSUM值.
 	 */
-	public static function chucksum(array $args, $appSecret, $type = 'sha1') {
+	public static function chucksum(array $args, $appSecret, $type = 'sha1', $server = false) {
 		$args = self::checkArgs($args);
 		if (isset($args['sign_method'])) {
 			$type = $args['sign_method'];
@@ -319,7 +318,7 @@ class RestFulClient {
 		foreach ($args as $key => $v) {
 			if (is_array($v)) {
 				foreach ($v as $k => $v1) {
-					if ($v1{0} == '@') {
+					if (!$server && $v1{0} == '@') {
 						$sign [] = $key . "[{$k}]" . self::getfileSha1($v1);
 					} else if ($v1 || is_numeric($v1)) {
 						$sign [] = $key . "[{$k}]" . $v1;
@@ -327,7 +326,7 @@ class RestFulClient {
 						$sign [] = $key . "[{$k}]";
 					}
 				}
-			} else if ($v{0} == '@') {
+			} else if (!$server && $v{0} == '@') {
 				$sign [] = $key . self::getfileSha1($v);
 			} else if ($v || is_numeric($v)) {
 				$sign [] = $key . $v;
@@ -373,10 +372,10 @@ class RestFulClient {
 			foreach ($_FILES as $key => $f) {
 				if (is_array($f['name'])) {
 					foreach ($f['tmp_name'] as $tmp) {
-						$args[ $key ][] = '@"' . $tmp . '"';
+						$args[ $key ][] = self::getfileSha1('@"' . $tmp . '"');
 					}
 				} else {
-					$args[ $key ] = '@"' . $f['tmp_name'] . '"';
+					$args[ $key ] = self::getfileSha1('@"' . $f['tmp_name'] . '"');
 				}
 			}
 		}

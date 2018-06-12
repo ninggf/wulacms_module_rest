@@ -22,8 +22,8 @@ class LocalSecretChecker implements ISecretChecker {
 	public function check($appKey) {
 		$key = 'rest@' . $appKey;
 		$sec = RtCache::get($key);
-		if ($sec !== null) {
-			return $sec;
+		if ($sec) {
+			return $sec == '404' ? false : $sec;
 		}
 		$table = new RestApp();
 		$app   = $table->get(['appkey' => $appKey], 'appsecret');
@@ -32,7 +32,7 @@ class LocalSecretChecker implements ISecretChecker {
 
 			return $app['appsecret'];
 		} else {
-			RtCache::add($key, false);
+			RtCache::add($key, '404');
 
 			return false;
 		}

@@ -15,6 +15,7 @@ use rest\classes\API;
 use rest\models\AppCfgTable;
 use wulaphp\app\App;
 use wulaphp\cache\Cache;
+use wulaphp\conf\ConfigurationLoader;
 use wulaphp\io\Request;
 
 /**
@@ -194,14 +195,23 @@ class ClientApi extends API {
 			$cfg                = $cache->get($ckey);
 			$device             = '';
 			$info               = false;
-			if ($cfg === null) {
+			if (!$cfg) {
+
 				$rst = $db->select('cfgid,platform')->from('{app_version} AS AV')->join('{rest_app} AS RA', 'AV.appkey = RA.appkey')->where($where)->desc('AV.id')->limit(0, 1)->get();
 				if ($rst) {
 					$cfg    = $table->loadConfig($rst['cfgid'] ? $rst['cfgid'] : 1);
 					$cfg    = $cfg['options'] ? $cfg['options'] : [];
 					$device = $rst['platform'];
 				} else {
-					$cfg = [];
+					$rst = $db->select('cfgid,platform,vercode')->from('{app_version} AS AV')->join('{rest_app} AS RA', 'AV.appkey = RA.appkey')->where(['AV.appkey' => $this->appKey])->desc('AV.id')->limit(0, 1)->get();
+					if ($rst) {
+						$cfg    = $table->loadConfig($rst['cfgid'] ? $rst['cfgid'] : 1);
+						$cfg    = $cfg['options'] ? $cfg['options'] : [];
+						$device = $rst['platform'];
+						$ckey   = 'client@' . md5($this->appKey . $rst['vercode'] . $token . $channel);
+					} else {
+						$cfg = [];
+					}
 				}
 			}
 			if ($token) {
@@ -222,18 +232,24 @@ class ClientApi extends API {
 				'vercode >' => $vercode
 			];
 
-			$sql = $db->select('version,desc,file,update_type,size')->from('{app_version}');
+			$sql = $db->select('*')->from('{app_version}');
 			$pkg = $sql->where($uw)->desc('vercode')->limit(0, 1)->get();
 
 			if ($pkg && $pkg['file'] && apply_filter('rest\canUpdate', true, $pkg, $device, $channel, $info)) {
-				$url            = preg_match('#^(ht|f)tps?://.+$#i', $pkg['file']) ? $pkg['file'] : App::url('rest/download/' . $this->appKey . ($channel ? '/' . $channel : ''));
-				$data['update'] = [
-					'version' => $pkg['version'],
-					'desc'    => $pkg['desc'],
-					'force'   => $pkg['update_type'],
-					'size'    => readable_size($pkg['size']),
-					'url'     => $url
-				];
+				$url = preg_match('#^(ht|f)tps?://.+$#i', $pkg['file']) ? $pkg['file'] : App::url('rest/download/' . $this->appKey . ($channel ? '/' . $channel : ''));
+				//预览发布检测
+				$ip      = Request::getIp();
+				$restCfg = ConfigurationLoader::loadFromFile('rest');
+				$ips     = (array)$restCfg->get('pre_release_ips');
+				if (!$pkg['pre_release'] || in_array($ip, $ips)) {
+					$data['update'] = [
+						'version' => $pkg['version'],
+						'desc'    => $pkg['desc'],
+						'force'   => $pkg['update_type'],
+						'size'    => readable_size($pkg['size']),
+						'url'     => $url
+					];
+				}
 			}
 
 			return $data;

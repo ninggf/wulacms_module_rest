@@ -90,8 +90,16 @@ class AppVerForm extends FormTable {
 	 * 是否强制升级
 	 * @var \backend\form\CheckboxField
 	 * @type bool
+	 * @layout 10,col-sm-6
 	 */
 	public $update_type = 1;
+	/**
+	 * 预览发布
+	 * @var \backend\form\CheckboxField
+	 * @type bool
+	 * @layout 10,col-sm-6
+	 */
+	public $pre_release = 0;
 
 	public function checkFile($value, $data, $msg) {
 		$cfg   = ConfigurationLoader::loadFromFile('rest');

@@ -83,3 +83,5 @@ $tables['1.1.0'][] = "ALTER TABLE `{prefix}app_client` ADD COLUMN `channel` VARC
 $tables['1.1.0'][] = "INSERT INTO `{prefix}app_cfg` (`id`,`pid`,`name`,`options`) VALUES (1,0,'默认配置',NULL)";
 //添加平台
 $tables['1.1.0'][] = "ALTER TABLE `{prefix}rest_app` ADD COLUMN `platform` VARCHAR(16) NULL COMMENT '平台' AFTER `status`";
+//添加预览版本设置
+$tables['1.1.1'][] = "ALTER TABLE `{prefix}app_version` ADD COLUMN `pre_release` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT '是否是预览版本' AFTER `cfgid`";

@@ -75,7 +75,12 @@ class CaptchaController extends Controller {
 		$type          = in_array($type, ['gif', 'png']) ? $type : 'png';
 		$auth_code_obj = new CaptchaCode ();
 		// 定义验证码信息
-		$arr ['code'] = ['characters' => 'A-H,J-K,M-N,P-Z,3-9', 'length' => 4, 'deflect' => true, 'multicolor' => true];
+		$arr ['code'] = [
+			'characters' => 'A-H,K-N,P-R,U-Y,2-4,6-9',
+			'length'     => 4,
+			'deflect'    => true,
+			'multicolor' => true
+		];
 		$auth_code_obj->setCode($arr ['code']);
 		// 定义干扰信息
 		$arr ['molestation'] = ['type' => 'both', 'density' => 'normal'];
