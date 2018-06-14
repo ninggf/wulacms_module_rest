@@ -22,12 +22,13 @@
                 <thead>
                 <tr>
                     <th width="20"><input type="checkbox" class="grp"/></th>
-                    <th width="90" data-sort="vercode,d">版本号</th>
-                    <th width="90">版本</th>
+                    <th width="70" data-sort="vercode,d">版本号</th>
+                    <th width="70">版本</th>
                     <th width="80">平台</th>
                     <th width="100">配置</th>
-                    <th width="60">强升</th>
-                    <th width="200">软件包文件</th>
+                    <th width="80">强升/预览</th>
+                    <th width="200">下载地址</th>
+                    <th width="90">母包</th>
                     <th width="90">体积</th>
                     <th>发行说明</th>
                     <th width="40"></th>

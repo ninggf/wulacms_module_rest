@@ -64,13 +64,13 @@ class AppVerForm extends FormTable {
 	 */
 	public $prefix;
 	/**
-	 * 软件包文件
+	 * 软件母包文件
 	 * @var \backend\form\TextField
 	 * @type string
-	 * @callback (checkFile) => 请上传软件包文件
+	 * @callback (checkFile) => 软件母包文件不存在
 	 * @layout 3,col-sm-6
 	 */
-	public $file;
+	public $ofile;
 	/**
 	 * 软件包大小
 	 * @var \backend\form\TextField
@@ -79,6 +79,14 @@ class AppVerForm extends FormTable {
 	 * @layout 3,col-sm-2
 	 */
 	public $size;
+	/**
+	 * 软件下载地址
+	 * @var \backend\form\TextField
+	 * @type string
+	 * @url
+	 * @layout 4,col-sm-12
+	 */
+	public $file;
 	/**
 	 * 发行说明
 	 * @var \backend\form\TextareaField
@@ -104,9 +112,6 @@ class AppVerForm extends FormTable {
 	public function checkFile($value, $data, $msg) {
 		$cfg   = ConfigurationLoader::loadFromFile('rest');
 		$store = $cfg->get('store', 'pkgs');
-		if (preg_match('#^(ht|f)tps?://.+$#', $value)) {
-			return true;
-		}
 		if (is_file(WWWROOT . $store . DS . $value)) {
 			return true;
 		}

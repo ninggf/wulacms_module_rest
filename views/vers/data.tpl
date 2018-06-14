@@ -17,10 +17,13 @@
             {$row.cfgName}
         </td>
         <td>
-            {if $row.update_type}是{/if}
+            {if $row.update_type}是{else}否{/if}/{if $row.pre_release}是{else}否{/if}
         </td>
         <td>
-            {$row.file}
+            {if $row.file}{$row.file}{/if}
+        </td>
+        <td>
+            {if $row.ofile}{$row.ofile}{/if}
         </td>
         <td>
             {$row.size|readable_size}

@@ -40,20 +40,21 @@ class DownloadController extends Controller {
 			}
 
 			$rs = $db->select('AV.*,RA.platform')->from('{app_version} AS AV')->join('{rest_app} AS RA', 'AV.appkey = RA.appkey')->where([
-				'RA.appkey' => $appkey
+				'RA.appkey'      => $appkey,
+				'AV.pre_release' => 0
 			])->desc('vercode')->get();
 
-			if (!$rs || !$rs['file']) {
+			if (!$rs || !$rs['ofile']) {
 				Response::respond(404);
 			}
 			//直接跳转去下载
-			if (preg_match('#^(ht|f)tps?://.+$#i', $rs['file'])) {
-				Response::redirect($rs['file']);
+			if (preg_match('#^(ht|f)tps?://.+$#i', $rs['ofile'])) {
+				Response::redirect($rs['ofile']);
 			}
 
 			$cfg                = ConfigurationLoader::loadFromFile('rest');
 			$store              = $cfg->get('store', 'pkgs');
-			$origional_apk_file = WWWROOT . $store . DS . $rs['file'];
+			$origional_apk_file = WWWROOT . $store . DS . $rs['ofile'];
 			//母包文件未找到
 			if (!is_file($origional_apk_file)) {
 				Response::respond(404);
@@ -81,7 +82,8 @@ class DownloadController extends Controller {
 			}
 			$path      = $ext . 's/' . substr(md5($channel . '_' . $userid), 0, 2);
 			$uc        = $userid == '0' ? '' : '_' . $userid;
-			$url       = $store . '/' . $path . '/' . ($rs ['prefix'] ? $rs['prefix'] : 'app') . '_' . $channel . $uc . '.' . $ext;
+			$ver       = '_v' . $rs['vercode'];
+			$url       = $store . '/' . $path . '/' . ($rs ['prefix'] ? $rs['prefix'] : 'app') . '_' . $channel . $uc . $ver . '.' . $ext;
 			$dest_file = WWWROOT . $url;
 
 			$host = $cfg->get('download');
@@ -103,7 +105,7 @@ class DownloadController extends Controller {
 			} else if ($ext == 'apk') {
 				$rst = ApkSignTool::repack($origional_apk_file, $dest_file, $channels);
 			} else {
-				Response::redirect(untrailingslashit($host) . '/' . $store . '/' . $rs['file']);
+				Response::redirect(untrailingslashit($host) . '/' . $store . '/' . $rs['ofile']);
 			}
 			if ($rst) {
 				Response::redirect($downloadUrl);
