@@ -16,7 +16,7 @@
         </div>
     </section>
     <script>
-		layui.link("{'wula/jqadmin/css/md.min.css'|vendor}").use(['jquery', 'bootstrap', 'ztree', 'wulaui'], function ($, b, z, wulaui) {
+		layui.link("{'wula/jqadmin/css/md.min.css'|vendor}").use(['jquery', 'bootstrap', 'wulaui'], function ($, b, wulaui) {
 			$('#rest-app-doc-dic').on('ztree.init', function (e) {
 				var docWrapper = $('#rest-app-doc'), settings = {
 					view    : {
@@ -42,7 +42,7 @@
 				$.extend(true, e.tree, {
 					settings: settings
 				});
-			}).wulatree('load')
+			}).wulatree('load');
 		});
     </script>
 </div>
