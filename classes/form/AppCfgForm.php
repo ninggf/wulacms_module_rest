@@ -35,4 +35,7 @@ class AppCfgForm extends FormTable {
 	 */
 	public $_spec;
 
+	protected function initialize($sfields) {
+		fire('rest\initCfgForm', $this);
+	}
 }

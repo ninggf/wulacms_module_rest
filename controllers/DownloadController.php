@@ -80,19 +80,28 @@ class DownloadController extends Controller {
 				default:
 					$ext = 'exe';
 			}
-			$path      = $ext . 's/' . substr(md5($channel . '_' . $userid), 0, 2);
-			$uc        = $userid == '0' ? '' : '_' . $userid;
-			$ver       = '_v' . $rs['vercode'];
-			$url       = $store . '/' . $path . '/' . ($rs ['prefix'] ? $rs['prefix'] : 'app') . '_' . $channel . $uc . $ver . '.' . $ext;
-			$dest_file = WWWROOT . $url;
-
 			$host = $cfg->get('download');
 			if (!$host) {
 				$host = App::base('');
 			}
+			$ourl      = $store . '/v' . $rs['vercode'] . '/' . ($rs ['prefix'] ? $rs['prefix'] : 'app') . '_' . $channel . '.' . $ext;
+			$dest_file = WWWROOT . $ourl;
+			if (is_file($dest_file)) {
+				$downloadUrl = untrailingslashit($host) . '/' . ltrim($ourl, '/');
+				Response::redirect($downloadUrl);
+			}
+			//下载指定的母包而不打包
+			//if (preg_match('#^(ht|f)tps?://.+$#i', $rs['file'])) {
+			//	Response::redirect($rs['file']);
+			//}
+
+			$ver       = '_v' . $rs['vercode'];
+			$path      = $ext . 's/' . substr(md5($channel . '_' . $userid), 0, 2);
+			$uc        = $userid == '0' ? '' : '_' . $userid;
+			$url       = $store . '/' . $path . '/' . ($rs ['prefix'] ? $rs['prefix'] : 'app') . '_' . $channel . $uc . $ver . '.' . $ext;
+			$dest_file = WWWROOT . $url;
 
 			$downloadUrl = untrailingslashit($host) . '/' . ltrim($url, '/');
-
 			if (is_file($dest_file)) {
 				Response::redirect($downloadUrl);
 			}
