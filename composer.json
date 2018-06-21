@@ -3,7 +3,7 @@
   "description": "RESTFul模块,提供RESTful风格的WEB SERVICE功能。",
   "type": "wula-module",
   "require": {
-	"wula/wula-installer": "^1.0",
+	"wula/wula-installer": "^2.0",
 	"wula/curlient": "^1.0.0"
   },
   "license": "MIT",
