@@ -85,11 +85,11 @@ class RestModule extends CmfModule {
 				$cg->icon        = '&#xe648;';
 				$cg->iconStyle   = 'color:red';
 			}
-			if ($passport->cando('st:api')) {
-				$cl              = $navi->getMenu('stat', '终端统计', 4);
-				$cl->data['url'] = App::url('rest/stat');
-				$cl->icon        = '&#xe682;';
-			}
+			//			if ($passport->cando('st:api')) {
+			//				$cl              = $navi->getMenu('stat', '终端统计', 4);
+			//				$cl->data['url'] = App::url('rest/stat');
+			//				$cl->icon        = '&#xe682;';
+			//			}
 		}
 	}
 }
