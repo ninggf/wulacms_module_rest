@@ -16,7 +16,7 @@
         </div>
     </section>
     <script>
-		layui.link("{'wula/jqadmin/css/md.min.css'|vendor}").use(['jquery', 'bootstrap', 'wulaui'], function ($, b, wulaui) {
+		layui.link("{'jqadmin/css/md.min.css'|vendor}").use(['jquery', 'bootstrap', 'wulaui'], function ($, b, wulaui) {
 			$('#rest-app-doc-dic').on('ztree.init', function (e) {
 				var docWrapper = $('#rest-app-doc'), settings = {
 					view    : {
