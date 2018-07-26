@@ -10,6 +10,7 @@ use rest\classes\RestFulClient;
 use rest\classes\UnauthorizedException;
 use wulaphp\app\App;
 use wulaphp\conf\ConfigurationLoader;
+use wulaphp\io\Request;
 use wulaphp\io\Session;
 use wulaphp\mvc\controller\Controller;
 use wulaphp\mvc\view\JsonView;
@@ -21,6 +22,7 @@ use wulaphp\mvc\view\XmlView;
 class IndexController extends Controller {
 	private $api;
 	private $format;
+	private $rqMehtod;
 	/**
 	 * @var \wulaphp\conf\Configuration
 	 */
@@ -31,6 +33,13 @@ class IndexController extends Controller {
 		$domain    = $this->cfg->get('domain');
 		if ($domain && $_SERVER['HTTP_HOST'] != $domain) {
 			$this->httpout(403);
+		}
+
+		$rqMethod       = strtolower($_SERVER ['REQUEST_METHOD']);
+		$this->rqMehtod = ucfirst($rqMethod);
+		if ($rqMethod == 'post') {
+			// supports content-type = 'application/json'
+			Request::getInstance()->addJsonPostBody();
 		}
 		$this->format = rqst('format', 'json');
 		if (!$this->format) {
@@ -80,16 +89,15 @@ class IndexController extends Controller {
 		$namesapce = $apis[0];
 		$module    = App::getModuleById($namesapce);
 		if (!$module) {
-			$this->httpout(404);
+			$this->httpout(404, 'module not found');
 		}
 		$cls = ucfirst($apis[1]) . 'Api';
 		$cls = $namesapce . '\\api\\v' . $v . '\\' . $cls;
 		if (class_exists($cls) && is_subclass_of($cls, API::class)) {
 			/**@var API $clz */
-			$clz      = new $cls($app_key, $v);
-			$ann      = new \ReflectionObject($clz);
-			$rqMethod = strtolower($_SERVER ['REQUEST_METHOD']);
-			$rm       = ucfirst($rqMethod);
+			$clz = new $cls($app_key, $v);
+			$ann = new \ReflectionObject($clz);
+			$rm  = $this->rqMehtod;
 			try {
 				if ($rm == 'Post') {
 					$m = $ann->getMethod($apis[2] . 'Post');
@@ -97,10 +105,25 @@ class IndexController extends Controller {
 					$m = $ann->getMethod($apis[2]);
 				}
 			} catch (\Exception $mre) {
+				try {
+					if ($rm == 'Post') {
+						$tmp = $ann->getMethod($apis[2]);
+						if ($tmp) {
+							$this->httpout(405, '不支持的请求方法');
+						}
+					} else {
+						$tmp = $ann->getMethod($apis[2] . 'Post');
+						if ($tmp) {
+							$this->httpout(405, '不支持的请求方法');
+						}
+					}
+				} catch (\Exception $e) {
+
+				}
 				$m = false;
 			}
 			if (!$m) {
-				$this->httpout(405, '不支持的请求方法');
+				$this->httpout(404, 'api not found');
 			}
 
 			$params  = [];//请求参数用于签名
