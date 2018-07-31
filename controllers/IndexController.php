@@ -166,7 +166,7 @@ class IndexController extends Controller {
 			}
 			//会话
 			$session = rqst('session');
-			if (rqset('session') && $session) {
+			if (rqset('session')) {
 				$args['session'] = $session;
 			}
 			//开发模式
