@@ -59,30 +59,31 @@ class RestModule extends CmfModule {
 			$cfg           = ConfigurationLoader::loadFromFile('rest');
 			$menu          = $ui->getMenu('system');
 			$navi          = $menu->getMenu('api', '应用接入');
-			$navi->iconCls = 'layui-icon';
-			$navi->icon    = '&#xe63b;';
+			$navi->iconCls = 'alicon';
+			$navi->icon    = '&#xe74a;';
 			$navi->pos     = 900;
-
+			if ($cfg->getb('dev', false)) {
+				$navi->iconStyle = 'color:orange';
+			} else {
+				$navi->iconStyle = 'color:green';
+			}
 			$doc              = $navi->getMenu('doc', '接口文档');
 			$doc->pos         = 1;
 			$doc->icon        = '&#xe6bc;';
 			$doc->data['url'] = App::url('rest/doc');
 
 			if ($passport->cando('app:api')) {
-				$app       = $navi->getMenu('app', '应用管理');
-				$app->pos  = 2;
-				$app->icon = '&#xe63f;';
-				if ($cfg->getb('dev', false)) {
-					$app->iconStyle = 'color:orange';
-				} else {
-					$app->iconStyle = 'color:green';
-				}
+				$app              = $navi->getMenu('app', '应用管理');
+				$app->pos         = 2;
+				$app->icon        = '&#xe658;';
+				$app->iconCls     = 'alicon';
 				$app->data['url'] = App::url('rest/apps');
 			}
 			if ($passport->cando('cfg:api')) {
 				$cg              = $navi->getMenu('cfg', '云端控制', 3);
 				$cg->data['url'] = App::url('rest/cfg');
-				$cg->icon        = '&#xe648;';
+				$cg->icon        = '&#xe640;';
+				$cg->iconCls     = 'alicon';
 				$cg->iconStyle   = 'color:red';
 			}
 			//			if ($passport->cando('st:api')) {
