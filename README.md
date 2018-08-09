@@ -87,4 +87,5 @@ return [
 
 ## 云端配置
 
-通过勾子`rest\classes\form\AppCfgForm::onParseFields`向系统注册云控项，具体可以参考`FormTable::addField()`。
+1. 通过勾子`rest\classes\form\AppCfgForm::onParseFields`向系统注册云控项，具体可以参考`FormTable::addField()`。
+2. 通过勾子`rest\initCfgForm`向系统注册云控项，作用同`rest\classes\form\AppCfgForm::onParseFields`。

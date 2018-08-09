@@ -10,7 +10,6 @@
 
 namespace rest\api\v1;
 
-use passport\classes\model\OauthSessionTable;
 use rest\classes\API;
 use rest\models\AppCfgTable;
 use wulaphp\app\App;
@@ -29,9 +28,7 @@ class ClientApi extends API {
 		'ios'     => '苹果',
 		'ipad'    => 'iPad',
 		'android' => '安卓',
-		'pad'     => '安卓平板',
-		'wxapp'   => '小程序',
-		'wxgame'  => '小游戏',
+		'pad'     => '平板',
 		'h5'      => 'H5',
 		'pc'      => 'PC'
 	];
@@ -41,7 +38,7 @@ class ClientApi extends API {
 	 *
 	 * @apiName 获取编号
 	 *
-	 * @param string $device  (required,sample=ios,android,h5,wxapp,wxgame,pc,web) 设备类型
+	 * @param string $device  (required,sample=ios,android,h5,pc,web) 设备类型
 	 * @param string $ver     (required,sample=1.0.0) 软件版本
 	 * @param string $channel (sample=guanfang) 渠道
 	 * @param int    $uid     用户ID（如果用户登录）
@@ -96,7 +93,7 @@ class ClientApi extends API {
 	 * @apiName 日活统计
 	 *
 	 * @param string $id     (required) 客户端ID（通过rest.client.get接口获取的）
-	 * @param string $device (required,sample=ios,android,h5,wxapp,wxgame,pc,web) 设备
+	 * @param string $device (required,sample=ios,android,h5,pc,web) 设备
 	 * @param string $ver    (required,sample=1.0.0) 版本
 	 * @param int    $uid    用户ID（如果用户登录）
 	 *
@@ -142,7 +139,7 @@ class ClientApi extends API {
 	 *
 	 * __后端使用到的hook:__
 	 *
-	 * 1. `rest\onGetClientStatus($cfg)`通过此勾子添加全局配置
+	 * 1. `rest\onGetClientStatus($cfg, $device, $channel, $token)`通过此勾子添加全局配置
 	 * 2. `rest\canUpdate($rst,$channel,$uid)`通过此勾子实现灰度升级
 	 *
 	 * @apiName 状态检测
@@ -214,11 +211,7 @@ class ClientApi extends API {
 					}
 				}
 			}
-			if ($token) {
-				$info = (new OauthSessionTable())->getInfo($token);
-			}
-
-			$cfg = apply_filter('rest\onGetClientStatus', $cfg, $device, $channel, $info);
+			$cfg = apply_filter('rest\onGetClientStatus', $cfg, $device, $channel, $token);
 			$cache->add($ckey, $cfg, 300);
 
 			$data = [
