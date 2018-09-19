@@ -88,3 +88,16 @@ $tables['1.1.1'][] = "ALTER TABLE `{prefix}app_version` ADD COLUMN `pre_release`
 
 //添加预览版本设置
 $tables['1.1.2'][] = "ALTER TABLE `{prefix}app_version` ADD COLUMN `ofile` VARCHAR(512) DEFAULT NULL COMMENT '母包文件' AFTER `file`";
+
+$tables['1.1.3'][] = "CREATE TABLE IF NOT EXISTS `{prefix}app_channel` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `channel_name` varchar(50) NOT NULL COMMENT '渠道名称',
+  `channel` varchar(20) NOT NULL COMMENT '渠道id',
+  `status` tinyint(2) NOT NULL DEFAULT '1' COMMENT '1 启用 0不启用',
+  `desc` varchar(512) DEFAULT NULL COMMENT '说明',
+  `create_time` int(10) NOT NULL DEFAULT '0',
+  `update_time` int(10) NOT NULL,
+  `deleted` tinyint(2) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `IDX_CHANNEL` (`channel`)
+) ENGINE=InnoDB  DEFAULT CHARSET={encoding} COMMENT='渠道列表'";

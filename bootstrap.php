@@ -31,6 +31,7 @@ class RestModule extends CmfModule {
 		$v['1.1.0'] = '添加版本配置功能';
 		$v['1.1.1'] = '添加预览发布功能';
 		$v['1.1.2'] = '添加母包文件支持';
+		$v['1.1.3'] = '添加渠道';
 
 		return $v;
 	}
@@ -46,6 +47,8 @@ class RestModule extends CmfModule {
 		$acl->addOperate('cfg', '云端控制');
 		$acl->addOperate('st', '终端统计');
 		$acl->addOperate('pkg', '版本管理');
+		$acl->addOperate('channel', '渠道管理');
+
 	}
 
 	/**
@@ -79,8 +82,15 @@ class RestModule extends CmfModule {
 				$app->iconCls     = 'alicon';
 				$app->data['url'] = App::url('rest/apps');
 			}
+			if ($passport->cando('channel:api')) {
+				$cg              = $navi->getMenu('channel', '渠道管理', 3);
+				$cg->data['url'] = App::url('rest/channel');
+				$cg->icon        = '&#xe645;';
+				$cg->iconCls     = 'alicon';
+				$cg->iconStyle   = 'color:green';
+			}
 			if ($passport->cando('cfg:api')) {
-				$cg              = $navi->getMenu('cfg', '云端控制', 3);
+				$cg              = $navi->getMenu('cfg', '云端控制', 4);
 				$cg->data['url'] = App::url('rest/cfg');
 				$cg->icon        = '&#xe640;';
 				$cg->iconCls     = 'alicon';
