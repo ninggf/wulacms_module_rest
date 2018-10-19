@@ -43,7 +43,7 @@
                         <th>说明</th>
                         <th width="150">创建时间</th>
                         <th width="60" data-sort="status,d">状态</th>
-                        <th></th>
+                        <th width="80"></th>
                     </tr>
                     </thead>
                 </table>

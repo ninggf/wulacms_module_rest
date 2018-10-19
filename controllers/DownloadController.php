@@ -82,7 +82,7 @@ class DownloadController extends Controller {
 			}
 			$host = $cfg->get('download');
 			if (!$host) {
-				$host = App::base('');
+				$host = apply_filter('rest\get_download_url',[]);
 			}
 			$ourl      = $store . '/v' . $rs['vercode'] . '/' . ($rs ['prefix'] ? $rs['prefix'] : 'app') . '_' . $channel . '.' . $ext;
 			$dest_file = WWWROOT . $ourl;

@@ -11,7 +11,7 @@ use wulaphp\io\Ajax;
 /**
  * Class ChannelController
  * @package rest\controllers
- * @acl     api:channel
+ * @acl     channel:api
  */
 class ChannelController extends IFramePageController {
 
