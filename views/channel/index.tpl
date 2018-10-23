@@ -8,12 +8,12 @@
                         <i class="fa fa-plus"></i> 添加渠道
                     </a>
                     <div class="btn-group">
-                        <a href="{'rest/channel/set-status/0'|app}" data-ajax
-                           data-grp="#table tbody input.grp:checked" data-confirm="你真的要禁用这些渠道吗？"
-                           data-warn="请选择要禁用的渠道" class="btn btn-sm btn-warning"><i class="fa fa-square-o"></i> 禁用</a>
-                        <a href="{'rest/channel/set-status/1'|app}" data-ajax
-                           data-grp="#table tbody input.grp:checked" data-confirm="你真的要激活这些渠道吗？"
-                           data-warn="请选择要激活的渠道" class="btn btn-sm btn-primary"><i class="fa fa-check-square-o"></i>
+                        <a href="{'rest/channel/set-status/0'|app}" data-ajax data-grp="#table tbody input.grp:checked"
+                           data-confirm="你真的要禁用这些渠道吗？" data-warn="请选择要禁用的渠道" class="btn btn-sm btn-warning"><i
+                                    class="fa fa-square-o"></i> 禁用</a>
+                        <a href="{'rest/channel/set-status/1'|app}" data-ajax data-grp="#table tbody input.grp:checked"
+                           data-confirm="你真的要激活这些渠道吗？" data-warn="请选择要激活的渠道" class="btn btn-sm btn-primary"><i
+                                    class="fa fa-check-square-o"></i>
                             激活</a>
                     </div>
                 </div>
@@ -55,22 +55,22 @@
     </section>
 </div>
 <script>
-	layui.use(['jquery', 'bootstrap', 'wulaui'], function ($, b, wui) {
-		var table = $('#table');
-		$('#channel-list').on('before.dialog', '.edit-admin', function (e) {
-			e.options.btn = ['保存', '取消'];
-			e.options.yes = function () {
-				$('#core-channel-form').data('dialogId', layer.index).submit();
-				return false;
-			};
-		}).removeClass('layui-hide');
+    layui.use(['jquery', 'bootstrap', 'wulaui'], function ($, b, wui) {
+        var table = $('#table');
+        $('#channel-list').on('before.dialog', '.edit-admin', function (e) {
+            e.options.btn = ['保存', '取消'];
+            e.options.yes = function () {
+                $('#core-channel-form').data('dialogId', layer.index).submit();
+                return false;
+            };
+        }).removeClass('layui-hide');
 
-		$('body').on('ajax.success', '#core-channel-form', function () {
-			layer.closeAll();
-			table.reload();
-		});
-		$('#btn-reload').click(function () {
-			table.reload();
-		});
-	})
+        $('body').on('ajax.success', '#core-channel-form', function () {
+            layer.closeAll();
+            table.reload();
+        });
+        $('#btn-reload').click(function () {
+            table.reload();
+        });
+    })
 </script>
