@@ -1,5 +1,5 @@
 <section class="vbox wulaui" id="rest-app-workset">
-    <header class="header bg-light dk b-b clearfix">
+    <header class="header bg-light lt b-b clearfix">
         <div class="row m-t-sm">
             <div class="col-sm-6 m-b-xs">
                 <a href="{'rest/apps/edit'|app}" class="btn btn-sm btn-success edit-app" data-ajax="dialog"

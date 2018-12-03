@@ -1,5 +1,5 @@
 <section class="vbox wulaui layui-hide" id="workset">
-    <header class="header bg-light dk b-b clearfix">
+    <header class="header bg-light lt b-b clearfix">
         <div class="row m-t-sm">
             <div class="col-sm-12 m-b-xs">
                 <a href="{'rest/vers/edit'|app}/{$appkey}" class="btn btn-sm btn-success edit-app" data-ajax="dialog"

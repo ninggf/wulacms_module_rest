@@ -1,6 +1,6 @@
 <div class="hbox stretch wulaui layui-hide" id="channel-list">
     <section class="vbox">
-        <header class="header bg-light clearfix b-b">
+        <header class="header bg-light lt clearfix b-b">
             <div class="row m-t-sm">
                 <div class="col-sm-6 m-b-xs">
                     <a href="{'rest/channel/edit'|app}" class="btn btn-sm btn-success edit-admin" data-ajax="dialog"

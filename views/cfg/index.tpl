@@ -1,7 +1,7 @@
 <div class="hbox stretch wulaui">
     <aside class="aside aside-md b-r">
         <div class="vbox">
-            <header class="header bg-light b-b clearfix">
+            <header class="header bg-light lt b-b clearfix">
                 <p class="h4">云端配置</p>
             </header>
             <section class="scrollable m-t-sm">
