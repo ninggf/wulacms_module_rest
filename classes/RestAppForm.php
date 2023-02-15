@@ -95,8 +95,6 @@ class RestAppForm extends FormTable {
 	}
 
 	public function getDeviceList() {
-		$device = ClientApi::device;
-
-		return $device;
+		return ClientApi::device;
 	}
 }

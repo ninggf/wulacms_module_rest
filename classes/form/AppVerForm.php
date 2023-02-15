@@ -110,12 +110,6 @@ class AppVerForm extends FormTable {
 	public $pre_release = 0;
 
 	public function checkFile($value, $data, $msg) {
-		$cfg   = ConfigurationLoader::loadFromFile('rest');
-		$store = $cfg->get('store', 'pkgs');
-		if (is_file(WWWROOT . $store . DS . $value)) {
-			return true;
-		}
-
-		return '请先把文件上传到' . WWWROOT_DIR . $store;
+		return true;
 	}
 }

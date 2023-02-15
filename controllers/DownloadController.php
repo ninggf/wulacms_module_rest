@@ -10,119 +10,156 @@
 
 namespace rest\controllers;
 
-use rest\classes\ApkSignTool;
+use passport\classes\model\PassportTable;
+use rest\classes\form\AppChannelForm;
+use rest\classes\PackageSignTool;
+use ucenter\Provider;
 use wulaphp\app\App;
-use wulaphp\conf\ConfigurationLoader;
 use wulaphp\io\Response;
 use wulaphp\mvc\controller\Controller;
+use wulaphp\util\RedisLock;
 
 class DownloadController extends Controller {
-	/**
-	 * 下载APP.
-	 *
-	 * @param string $appkey APP key.
-	 * @param string $cid    channel.
-	 * @param int    $uid    user.
-	 *
-	 * @throws
-	 */
-	public function index($appkey, $cid = 'guanfang', $uid = 0) {
-		if (empty ($appkey)) {
-			Response::respond(404);
-		}
-		try {
-			$db = App::db();
+    /**
+     * 下载APP.
+     *
+     * @param string $appkey APP key.
+     * @param string $cid    channel.
+     * @param string $uid    user.
+     *
+     * @throws
+     */
+    public function index(string $appkey = '', string $cid = 'guanfang', string $uid = '') {
 
-			//是否被阻止不能下载.
-			$blocked = apply_filter('rest\beforeDownload', false, $appkey, $cid, $uid);
-			if ($blocked) {
-				Response::respond(404);
-			}
+        if (empty ($appkey)) {
+            $appkey = '5f61abe868926';
+        }
 
-			$rs = $db->select('AV.*,RA.platform')->from('{app_version} AS AV')->join('{rest_app} AS RA', 'AV.appkey = RA.appkey')->where([
-				'RA.appkey'      => $appkey,
-				'AV.pre_release' => 0
-			])->desc('vercode')->get();
+        try {
+            $db  = App::db();
+            $uid = intval($uid);
+            //是否被阻止不能下载.
+            $blocked = apply_filter('rest\beforeDownload', false, $appkey, $cid, $uid);
+            if ($blocked) {
+                Response::respond();
+            }
 
-			if (!$rs || !$rs['ofile']) {
-				Response::respond(404);
-			}
-			//直接跳转去下载
-			if (preg_match('#^(ht|f)tps?://.+$#i', $rs['ofile'])) {
-				Response::redirect($rs['ofile']);
-			}
+            $rs = $db->select('AV.*,RA.platform')->from('{app_version} AS AV')->join('{rest_app} AS RA', 'AV.appkey = RA.appkey')->where([
+                'RA.appkey'      => $appkey,
+                'AV.pre_release' => 0
+            ])->desc('vercode')->limit(0, 1)->get();
 
-			$cfg                = ConfigurationLoader::loadFromFile('rest');
-			$store              = $cfg->get('store', 'pkgs');
-			$origional_apk_file = WWWROOT . $store . DS . $rs['ofile'];
-			//母包文件未找到
-			if (!is_file($origional_apk_file)) {
-				Response::respond(404);
-			}
+            if (!$rs) {
+                Response::respond();
+            }
 
-			$channel = $cid;
-			$userid  = $uid;
+            # 查看是否已经有生成好的包
+            $rs['uid'] = $uid;
+            $rs['cid'] = $cid;
+            $pkgFile   = apply_filter('rest\getPackagedFile', '', $rs);
 
-			if (!preg_match('/^[\da-z_]{1,15}$/i', $channel)) {
-				$channel = 'guanfang';
-			}
+            if ($pkgFile) {
+                # 已经打包
+                Response::redirect($rs['file']);
+            } else {
+                if ($rs['platform'] == 'ios') {
+                    $rs['down_url'] = Provider::getShareUrl();
 
-			if (!preg_match('/^[\d]{1,10}$/i', $userid)) {
-				$userid = '0';
-			}
-			switch ($rs['platform']) {
-				case 'ios':
-					$ext = 'ipa';
-					break;
-				case 'android':
-					$ext = 'apk';
-					break;
-				default:
-					$ext = 'exe';
-			}
-			$host = $cfg->get('download');
-			if (!$host) {
-				$host = apply_filter('rest\get_download_url',[]);
-			}
-			$ourl      = $store . '/v' . $rs['vercode'] . '/' . ($rs ['prefix'] ? $rs['prefix'] : 'app') . '_' . $channel . '.' . $ext;
-			$dest_file = WWWROOT . $ourl;
-			if (is_file($dest_file)) {
-				$downloadUrl = untrailingslashit($host) . '/' . ltrim($ourl, '/');
-				Response::redirect($downloadUrl);
-			}
-			//下载指定的母包而不打包
-			//if (preg_match('#^(ht|f)tps?://.+$#i', $rs['file'])) {
-			//	Response::redirect($rs['file']);
-			//}
+                    return template('ios_down', $rs);
+                }
+                //直接跳转去下载
+                if (preg_match('#^(ht|f)tps?://.+$#i', $rs['file'])) {
+                    Response::redirect($rs['file']);
+                } else {
+                    # android11打包会失败，暂时不打包，报错吧
+                    Response::respond();
+                }
 
-			$ver       = '_v' . $rs['vercode'];
-			$path      = $ext . 's/' . substr(md5($channel . '_' . $userid), 0, 2);
-			$uc        = $userid == '0' ? '' : '_' . $userid;
-			$url       = $store . '/' . $path . '/' . ($rs ['prefix'] ? $rs['prefix'] : 'app') . '_' . $channel . $uc . $ver . '.' . $ext;
-			$dest_file = WWWROOT . $url;
+                if (!$rs['ofile']) {
+                    Response::respond();
+                }
 
-			$downloadUrl = untrailingslashit($host) . '/' . ltrim($url, '/');
-			if (is_file($dest_file)) {
-				Response::redirect($downloadUrl);
-			}
+                $ofile = APPROOT . $rs['ofile'];
+                if (!is_file($ofile)) {
+                    Response::respond();
+                }
+                #打包
+                if (!AppChannelForm::sexist(['channel' => $cid, 'status' => 1, 'deleted' => 0])) {
+                    $cid = 'guanfang';
+                }
+                if (!PassportTable::sexist(['id' => $uid])) {
+                    $uid = 0;
+                }
 
-			$channels ['channel'] = $channel;
-			$channels ['userid']  = $userid;
-			$rst                  = false;
-			if ($ext == 'ipa') {
-				$rst = ApkSignTool::repackIOS($origional_apk_file, $dest_file, $channels, $rs ['prefix']);
-			} else if ($ext == 'apk') {
-				$rst = ApkSignTool::repack($origional_apk_file, $dest_file, $channels);
-			} else {
-				Response::redirect(untrailingslashit($host) . '/' . $store . '/' . $rs['ofile']);
-			}
-			if ($rst) {
-				Response::redirect($downloadUrl);
-			} else {
-				Response::respond(404);
-			}
-		} catch (\Exception $e) {
-			Response::respond(404);
-		}
-	}
+                $rs['cid'] = $cid;
+                $rs['uid'] = $uid;
+
+                $key = 'pkging.' . $cid . '.' . $uid;
+
+                if (RedisLock::ulock($key)) {
+                    try {
+                        $fname = TMP_PATH . $cid . '_' . $uid . '_' . $rs['vercode'] . '.apk';
+                        $rst   = PackageSignTool::repackApk($ofile, $fname, [
+                            'userid'  => $uid,
+                            'channel' => $cid
+                        ], $error);
+
+                        if ($rst) {
+                            $destDir = 'pkgs/' . $cid . '/';
+                            if (!is_dir(WWWROOT . $destDir) && !mkdir(WWWROOT . $destDir, 0755, true)) {
+                                RedisLock::release($key);
+                                Response::respond(500, '无法创建目录');
+                            }
+                            $dfile = 'qww_' . base_convert($uid, 10, 36) . '_' . $rs['vercode'] . '.apk';
+                            if (rename($fname, WWWROOT . $destDir . $dfile)) {
+                                $url       = trailingslashit(Provider::getShareUrl()) . $destDir . $dfile;
+                                $rs['url'] = $url;
+                                //fire('rest\onAppPackaged', $rs);
+                                RedisLock::release($key);
+                                Response::redirect($url); # 跳转到下载页
+                            } else {
+                                RedisLock::release($key);
+                                Response::respond(500, '无法复制文件');
+                            }
+                        } else {
+                            log_error($error, 'pkg');
+                            RedisLock::release($key);
+                            Response::respond(500, '无法打包');
+                        }
+                    } finally {
+                        RedisLock::release($key);
+                    }
+                }
+            }
+
+            Response::respond();
+        } catch (\Exception $e) {
+            Response::respond();
+        }
+    }
+
+    public function plist($id, $file) {
+        if ($file != 'manifest.plist') {
+            Response::respond();
+        }
+
+        try {
+            $db = App::db();
+
+            $rs = $db->select('AV.file,RA.platform')->from('{app_version} AS AV')->join('{rest_app} AS RA', 'AV.appkey = RA.appkey')->where([
+                'AV.id'          => $id,
+                'AV.pre_release' => 0
+            ])->desc('vercode')->limit(0, 1)->get();
+
+            if (!$rs || $rs['platform'] != 'ios') {
+                Response::respond();
+            }
+
+            $rs['bundle'] = App::cfg('@bundle', []);
+
+            return template('ios_manifest', $rs);
+        } catch (\Exception $e) {
+            Response::respond();
+        }
+    }
 }

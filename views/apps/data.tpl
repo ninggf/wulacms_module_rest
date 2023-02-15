@@ -22,7 +22,7 @@
                 <span><i class="fa fa-times text-danger text"></i></span>
             {/if}
         </td>
-        <td>1.0.0</td>
+        <td>{$item.version|default:'-'}</td>
         <td class="text-right">
             <a href="{'rest/apps/edit'|app}/{$item.id}" data-ajax="dialog" data-area="700px,auto"
                data-title="编辑『{$item.name|escape}』" class="edit-app">

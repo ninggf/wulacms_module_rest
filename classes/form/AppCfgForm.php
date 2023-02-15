@@ -14,28 +14,32 @@ use wulaphp\form\FormTable;
 use wulaphp\validator\JQueryValidator;
 
 class AppCfgForm extends FormTable {
-	use JQueryValidator;
-	/**
-	 * @var \backend\form\HiddenField
-	 * @type int
-	 */
-	public $id;
-	/**
-	 * 配置名
-	 * @var \backend\form\TextField
-	 * @type string
-	 * @required
-	 * @layout 1,col-xs-6
-	 */
-	public $name;
-	/**
-	 * @var \backend\form\Separator
-	 * @type string
-	 * @skip true
-	 */
-	public $_spec;
+    use JQueryValidator;
 
-	protected function initialize($sfields) {
-		fire('rest\initCfgForm', $this);
-	}
+    /**
+     * @var \backend\form\HiddenField
+     * @type int
+     */
+    public $id;
+    /**
+     * 配置名
+     * @var \backend\form\TextField
+     * @type string
+     * @required
+     * @layout 1,col-xs-6
+     */
+    public $name;
+    /**
+     * @var \backend\form\Separator
+     * @type string
+     * @skip true
+     */
+    public $_spec;
+
+    protected function initialize($sfields) {
+        try {
+            fire('rest\initCfgForm', $this);
+        } catch (\Exception $e) {
+        }
+    }
 }
